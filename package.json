@@ -12,7 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "agents:setup": "tsx scripts/setup-agents.ts"
+    "agents:setup": "tsx scripts/setup-agent.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
@@ -25,6 +25,7 @@
     "lucide-react": "^0.441.0",
     "nanoid": "^5.0.7",
     "next": "^14.2.15",
+    "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

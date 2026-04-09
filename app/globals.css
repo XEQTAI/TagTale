@@ -2,79 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262.1 83.3% 57.8%;
-    --radius: 0.75rem;
-  }
+/* ─── Design tokens ────────────────────────────────────────────────────────
+   Light mode: off-white page, white surfaces, near-black text.
+   Dark  mode: near-black page, dark-gray surfaces, near-white text.
+   Neither ever shows white-on-white or black-on-black.
+   Color lives only in photos, avatars, and unicode emoji.
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --page:      #F7F7F7;   /* off-white page bg  — never pure white */
+  --surface:   #FFFFFF;   /* cards, inputs, modals */
+  --surface-2: #F0F0F0;   /* secondary surfaces, hover states */
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 263.4 70% 50.4%;
-  }
+  /* Text */
+  --ink:   #0A0A0A;   /* primary text  — never pure black */
+  --ink-2: #5C5C5C;   /* secondary text */
+  --ink-3: #9A9A9A;   /* placeholder, tertiary */
+
+  /* Borders */
+  --edge:   #E4E4E4;  /* default border */
+  --edge-2: #C8C8C8;  /* stronger border */
+
+  /* Brand palette — remapped to monochrome grays.
+     Invert automatically in dark mode so every `brand-*` class works everywhere. */
+  --brand-50:  #F7F7F7;
+  --brand-100: #EFEFEF;
+  --brand-200: #DCDCDC;
+  --brand-300: #BEBEBE;
+  --brand-400: #8C8C8C;
+  --brand-500: #525252;
+  --brand-600: #1A1A1A;   /* ← primary interactive */
+  --brand-700: #0D0D0D;
+  --brand-800: #060606;
+  --brand-900: #000000;
+  --brand-950: #000000;
 }
 
+.dark {
+  --page:      #0A0A0A;   /* near-black page bg */
+  --surface:   #161616;   /* cards */
+  --surface-2: #222222;   /* hover, secondary surfaces */
+
+  --ink:   #F0F0F0;
+  --ink-2: #AAAAAA;
+  --ink-3: #666666;
+
+  --edge:   #2A2A2A;
+  --edge-2: #3C3C3C;
+
+  /* Inverted brand */
+  --brand-50:  #141414;
+  --brand-100: #1E1E1E;
+  --brand-200: #2C2C2C;
+  --brand-300: #404040;
+  --brand-400: #6A6A6A;
+  --brand-500: #A0A0A0;
+  --brand-600: #E6E6E6;   /* ← primary interactive in dark */
+  --brand-700: #F0F0F0;
+  --brand-800: #F6F6F6;
+  --brand-900: #FAFAFA;
+  --brand-950: #FFFFFF;
+}
+
+/* ─── Global base ──────────────────────────────────────────────────────── */
 @layer base {
-  * {
-    @apply border-border;
-  }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--page);
+    color: var(--ink);
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    padding-top:    env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
+
+  * { border-color: var(--edge); }
+
+  /* Make common Tailwind utility classes theme-aware via CSS cascade */
+  .bg-white          { background-color: var(--surface) !important; }
+  .bg-gray-50        { background-color: var(--page)    !important; }
+  .bg-gray-100       { background-color: var(--surface-2) !important; }
+  .border-gray-100,
+  .border-gray-200   { border-color: var(--edge)  !important; }
+  .border-gray-300   { border-color: var(--edge-2) !important; }
+  .text-gray-900     { color: var(--ink)   !important; }
+  .text-gray-800     { color: var(--ink)   !important; }
+  .text-gray-700     { color: var(--ink-2) !important; }
+  .text-gray-600     { color: var(--ink-2) !important; }
+  .text-gray-500     { color: var(--ink-3) !important; }
+  .text-gray-400     { color: var(--ink-3) !important; }
 }
 
-/* PWA safe areas */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+/* ─── Semantic utilities ───────────────────────────────────────────────── */
+@layer utilities {
+  /* Apply these in new components instead of raw gray-* classes */
+  .bg-surface   { background-color: var(--surface); }
+  .bg-surface-2 { background-color: var(--surface-2); }
+  .bg-page      { background-color: var(--page); }
+  .text-ink     { color: var(--ink); }
+  .text-ink-2   { color: var(--ink-2); }
+  .text-ink-3   { color: var(--ink-3); }
+  .border-edge  { border-color: var(--edge); }
+  .border-edge-2 { border-color: var(--edge-2); }
 }
 
-/* Feed scrolling */
-.feed-container {
-  @apply max-w-lg mx-auto;
+/* ─── Component patterns ───────────────────────────────────────────────── */
+@layer components {
+  /* Card: white surface that floats above page bg */
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--edge);
+    border-radius: 1rem;
+  }
+
+  /* Primary button: solid black/white that auto-inverts */
+  .btn-primary {
+    background-color: var(--ink);
+    color: var(--page);
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover  { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Ghost button */
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--ink);
+    border: 1px solid var(--edge-2);
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.15s;
+  }
+  .btn-ghost:hover { background-color: var(--surface-2); }
+
+  /* Input */
+  .input {
+    background-color: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--edge-2);
+    border-radius: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .input::placeholder { color: var(--ink-3); }
+  .input:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  /* Post card hover */
+  .post-card { transition: box-shadow 0.15s; }
+
+  /* Feed container */
+  .feed-container { max-width: 32rem; margin-left: auto; margin-right: auto; }
 }
 
-/* Post card hover */
-.post-card {
-  @apply transition-shadow duration-200 hover:shadow-md;
-}
-
-/* QR code print styles */
+/* ─── PWA / print ──────────────────────────────────────────────────────── */
 @media print {
-  .no-print { display: none !important; }
+  .no-print   { display: none !important; }
   .print-only { display: block !important; }
 }
+
+/* ─── Scrollbar (subtle) ───────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--edge-2); border-radius: 2px; }

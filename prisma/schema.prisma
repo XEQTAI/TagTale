@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -37,21 +39,25 @@ model MagicLink {
   @@index([token])
 }
 
+// ─── Objects ─────────────────────────────────────────────────────────────────
+
 model TagObject {
   id          String   @id @default(cuid())
   name        String
   description String?
+  imageUrl    String?  // Object profile photo (taken by creator)
   qrCodeUrl   String?
   sponsorId   String?
   createdById String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sponsor   Sponsor?     @relation(fields: [sponsorId], references: [id])
-  createdBy User         @relation(fields: [createdById], references: [id])
-  scans     Scan[]
-  posts     Post[]
-  followers ObjectFollow[]
+  sponsor      Sponsor?      @relation(fields: [sponsorId], references: [id])
+  createdBy    User          @relation(fields: [createdById], references: [id])
+  scans        Scan[]
+  posts        Post[]
+  followers    ObjectFollow[]
+  eventObjects EventObject[]
 
   @@index([sponsorId])
   @@index([createdById])
@@ -88,6 +94,8 @@ model ObjectFollow {
   @@index([userId])
 }
 
+// ─── Content ─────────────────────────────────────────────────────────────────
+
 model Post {
   id               String    @id @default(cuid())
   objectId         String
@@ -97,7 +105,7 @@ model Post {
   mediaUrl         String?
   mediaType        String?   // "image" | "video"
   views            Int       @default(0)
-  moderationStatus String    @default("pending") // "pending" | "approved" | "rejected"
+  moderationStatus String    @default("pending")  // "pending" | "approved" | "rejected"
   moderationNotes  String?
   createdAt        DateTime  @default(now())
   deletedAt        DateTime?
@@ -148,37 +156,103 @@ model Report {
   postId    String
   userId    String
   reason    String
-  status    String   @default("pending") // "pending" | "reviewed" | "actioned" | "dismissed"
+  details   String?
+  status    String   @default("pending")  // "pending" | "reviewed" | "actioned" | "dismissed"
   createdAt DateTime @default(now())
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [userId], references: [id])
 
+  @@unique([postId, userId])
   @@index([postId])
   @@index([status])
 }
 
+// ─── Sponsors & Ads ──────────────────────────────────────────────────────────
+
 model Sponsor {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  logoUrl    String?
+  websiteUrl String?
+  email      String?
+  phone      String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  objects   TagObject[]
+  ads       Ad[]
+  contacts  SponsorContact[]
+  deals     SponsorDeal[]
+  campaigns AdCampaign[]
+}
+
+model SponsorContact {
   id        String   @id @default(cuid())
+  sponsorId String
   name      String
-  logoUrl   String?
-  website   String?
+  email     String?
+  phone     String?
+  role      String?
+  notes     String?
   createdAt DateTime @default(now())
 
-  objects TagObject[]
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+
+  @@index([sponsorId])
+}
+
+model SponsorDeal {
+  id        String    @id @default(cuid())
+  sponsorId String
+  title     String
+  value     Float?
+  stage     String    @default("lead")   // lead | qualified | proposal | negotiation | won | lost
+  notes     String?
+  closedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+
+  @@index([sponsorId])
+  @@index([stage])
+}
+
+model AdCampaign {
+  id        String    @id @default(cuid())
+  sponsorId String
+  name      String
+  budget    Float?
+  spent     Float     @default(0)
+  cpm       Float?    // cost per 1000 impressions
+  startDate DateTime?
+  endDate   DateTime?
+  status    String    @default("draft")  // draft | active | paused | ended
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id])
   ads     Ad[]
+
+  @@index([sponsorId])
+  @@index([status])
 }
 
 model Ad {
-  id          String   @id @default(cuid())
-  sponsorId   String
-  content     String
-  mediaUrl    String?
-  targetTags  String[]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  sponsorId  String?
+  campaignId String?
+  title      String
+  imageUrl   String?
+  linkUrl    String?
+  cpm        Float?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 
-  sponsor     Sponsor        @relation(fields: [sponsorId], references: [id])
+  sponsor     Sponsor?     @relation(fields: [sponsorId], references: [id])
+  campaign    AdCampaign?  @relation(fields: [campaignId], references: [id])
   impressions AdImpression[]
 
   @@index([sponsorId])
@@ -196,6 +270,36 @@ model AdImpression {
   @@index([adId])
   @@index([userId])
 }
+
+// ─── Events / Projects ───────────────────────────────────────────────────────
+
+model Event {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  location    String?
+  imageUrl    String?
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  objects EventObject[]
+}
+
+model EventObject {
+  eventId  String
+  objectId String
+  addedAt  DateTime @default(now())
+  notes    String?
+
+  event  Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  object TagObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, objectId])
+}
+
+// ─── Analytics ───────────────────────────────────────────────────────────────
 
 model AnalyticsEvent {
   id        String   @id @default(cuid())
@@ -216,7 +320,7 @@ model SystemLog {
   id        String   @id @default(cuid())
   level     String   // "info" | "warn" | "error"
   message   String
-  context   Json?
+  meta      Json?
   createdAt DateTime @default(now())
 
   @@index([level])

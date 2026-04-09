@@ -1,6 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+/**
+ * AI helpers — all backed by OpenRouter/Gemma 4 for maximum economy.
+ * Deep moderation also runs via OpenRouter (batch), no Managed Agents cost.
+ */
+import { openrouterPrompt, openrouterVision } from './openrouter'
+import { prisma } from './prisma'
 
 export type ModerationResult = {
   approved: boolean
@@ -9,163 +12,128 @@ export type ModerationResult = {
   confidence: number
 }
 
-// Quick synchronous moderation via Messages API
+const MOD_SYSTEM = `You are a content moderator for TagTale, a social platform about physical objects.
+Evaluate for: spam, illegal content, NSFW (unless mild), hate speech, harassment, violence.
+Reply ONLY with valid JSON: {"approved":bool,"status":"approved"|"rejected"|"flagged","reason":string|null,"confidence":0-1}
+Be permissive — only reject clear violations.`
+
+/** Quick synchronous moderation via OpenRouter (economical). */
 export async function moderateContent(params: {
-  content?: string
+  text?: string
   mediaUrl?: string
-  mediaType?: string
-  objectName?: string
 }): Promise<ModerationResult> {
   try {
-    const context = [
-      params.objectName && `Object tagged: "${params.objectName}"`,
-      params.content && `Post text: "${params.content}"`,
-      params.mediaUrl && `Media: ${params.mediaType || 'image'} attached`,
-    ]
-      .filter(Boolean)
-      .join('\n')
+    let raw: string
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 256,
-      system: `You are a content moderator for TagTale, a social media platform.
-Evaluate posts for: spam, illegal content, NSFW (unless mild), hate speech, harassment, violence.
-Respond ONLY with JSON: {"approved": bool, "status": "approved"|"rejected"|"flagged", "reason": string|null, "confidence": 0-1}
-Be permissive for general social media content. Only reject clear violations.`,
-      messages: [
-        {
-          role: 'user',
-          content: `Moderate this post:\n${context || 'No content provided'}`,
-        },
-      ],
-    })
-
-    const text = response.content.find((b) => b.type === 'text')?.text ?? ''
-    const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? '{}')
-
-    return {
-      approved: parsed.approved ?? true,
-      status: parsed.status ?? 'approved',
-      reason: parsed.reason ?? undefined,
-      confidence: parsed.confidence ?? 0.9,
+    if (params.mediaUrl) {
+      // Vision-capable model for image analysis
+      const context = params.text ? `Caption: "${params.text}"\n` : ''
+      raw = await openrouterVision(
+        params.mediaUrl,
+        `${context}Moderate this post image. Reply ONLY with JSON: {"approved":bool,"status":"approved"|"rejected"|"flagged","reason":string|null,"confidence":0-1}`,
+        { maxTokens: 128 }
+      )
+    } else {
+      raw = await openrouterPrompt(
+        `Moderate this post: "${params.text || ''}"`,
+        MOD_SYSTEM,
+        { maxTokens: 128 }
+      )
     }
-  } catch (err) {
-    console.error('Moderation error:', err)
-    // Default to approved on error — don't block posts for AI failures
+
+    const json = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? '{}')
+    return {
+      approved:   json.approved   ?? true,
+      status:     json.status     ?? 'approved',
+      reason:     json.reason     ?? undefined,
+      confidence: json.confidence ?? 0.9,
+    }
+  } catch {
+    // Default approve on AI failure — never block posts for infra issues
     return { approved: true, status: 'approved', confidence: 0.5 }
   }
 }
 
-// Async deep moderation using Claude Managed Agents
-export async function deepModeratePosts(reportedPostIds: string[]): Promise<void> {
-  const agentId = process.env.CLAUDE_AGENT_ID
-  const environmentId = process.env.CLAUDE_ENVIRONMENT_ID
-
-  if (!agentId || !environmentId) {
-    console.warn('Claude Managed Agents not configured — skipping deep moderation')
-    return
-  }
-
+/**
+ * Batch deep moderation — runs in background after ≥3 reports.
+ * Uses OpenRouter instead of Claude Managed Agents to keep costs low.
+ */
+export async function deepModeratePosts(postIds: string[]): Promise<void> {
   try {
-    // Create a session for this batch moderation job
-    const session = await client.beta.sessions.create({
-      agent: { type: 'agent', id: agentId },
-      environment_id: environmentId,
-      title: `Moderation batch: ${reportedPostIds.length} posts`,
+    const posts = await prisma.post.findMany({
+      where: { id: { in: postIds }, deletedAt: null },
+      include: { reports: { select: { reason: true } } },
     })
 
-    // Send the moderation task
-    await client.beta.sessions.events.send(session.id, {
-      events: [
-        {
-          type: 'user.message',
-          content: [
-            {
-              type: 'text',
-              text: `Review these reported post IDs for policy violations and output a JSON array of moderation decisions:
-Post IDs: ${reportedPostIds.join(', ')}
+    for (const post of posts) {
+      const reasons = post.reports.map((r) => r.reason).join(', ')
+      const context = [
+        post.content && `Content: "${post.content}"`,
+        post.mediaUrl && `Has ${post.mediaType || 'media'} attachment`,
+        `Reported for: ${reasons}`,
+      ]
+        .filter(Boolean)
+        .join('\n')
 
-For each post, decide: action ("actioned" = remove, "dismissed" = keep) and reason.
-Output format: [{"postId": "...", "action": "actioned"|"dismissed", "reason": "..."}]`,
-            },
-          ],
-        },
-      ],
-    })
+      let result: ModerationResult
+      if (post.mediaUrl) {
+        const raw = await openrouterVision(
+          post.mediaUrl,
+          `${context}\nShould this post be removed? JSON only: {"approved":bool,"status":"approved"|"rejected","reason":string}`,
+          { maxTokens: 128 }
+        ).catch(() => '{"approved":true,"status":"approved","reason":null}')
+        const json = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? '{}')
+        result = { approved: json.approved ?? true, status: json.status ?? 'approved', reason: json.reason, confidence: 0.8 }
+      } else {
+        result = await moderateContent({ text: context })
+      }
 
-    // Stream events to completion
-    const stream = client.beta.sessions.stream(session.id)
-
-    for await (const event of stream) {
-      if (event.type === 'session.status_terminated') break
-      if (
-        event.type === 'session.status_idle' &&
-        (event as { stop_reason?: { type: string } }).stop_reason?.type !== 'requires_action'
-      ) break
+      if (!result.approved) {
+        await prisma.post.update({
+          where: { id: post.id },
+          data: { moderationStatus: 'rejected', moderationNotes: result.reason ?? 'Deep moderation' },
+        })
+      } else {
+        await prisma.post.update({
+          where: { id: post.id },
+          data: { moderationStatus: 'approved' },
+        })
+      }
     }
-
-    // Archive the session when done
-    await client.beta.sessions.archive(session.id)
   } catch (err) {
-    console.error('Deep moderation agent error:', err)
+    console.error('deepModeratePosts error:', err)
   }
 }
 
-// Generate a creative username (no numbers) using Claude
+/**
+ * Analyze an object photo and extract/suggest a name + description.
+ * Great for the "take a photo, auto-fill the form" UX.
+ */
+export async function analyzeObjectImage(imageUrl: string): Promise<{ name: string; description: string } | null> {
+  try {
+    const raw = await openrouterVision(
+      imageUrl,
+      'What physical object is in this photo? Reply ONLY with JSON: {"name":"short object name","description":"1-2 sentence interesting description for a social object tracker"}',
+      { maxTokens: 128 }
+    )
+    const json = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? '{}')
+    if (json.name) return json
+    return null
+  } catch {
+    return null
+  }
+}
+
+/** Generate a creative username (no numbers) via OpenRouter. */
 export async function generateAiUsername(): Promise<string> {
   try {
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 64,
-      messages: [
-        {
-          role: 'user',
-          content:
-            'Generate one creative, memorable username for a social media app. Rules: lowercase only, no numbers, no spaces, no underscores, 10-20 chars total, should sound like a nature+personality mashup (e.g. "gentlestormcrest"). Output ONLY the username, nothing else.',
-        },
-      ],
-    })
-
-    const text = response.content.find((b) => b.type === 'text')?.text?.trim() ?? ''
-    // Validate: no numbers, reasonable length
-    if (text && /^[a-z]{8,25}$/.test(text)) return text
-  } catch {
-    // Fall through to fallback
-  }
-
-  return '' // Caller falls back to generateUsername() from utils
-}
-
-// One-time setup: create the Claude Managed Agent for TagTale
-export async function setupManagedAgent(): Promise<{ agentId: string; environmentId: string }> {
-  // Create environment
-  const environment = await client.beta.environments.create({
-    name: 'tagtale-moderation',
-    config: {
-      type: 'cloud',
-      networking: { type: 'unrestricted' },
-    },
-  })
-
-  // Create the moderation agent
-  const agent = await client.beta.agents.create({
-    name: 'TagTale Content Moderator',
-    model: 'claude-opus-4-6',
-    system: `You are a content moderator for TagTale, a social media platform where users post about physical objects.
-Your job is to review reported content and make moderation decisions.
-
-Guidelines:
-- Remove content that is: illegal, genuinely harmful, severe harassment, CSAM
-- Keep content that is: mildly edgy, opinionated, funny, adult humor (no explicit nudity unless reported for age-gate)
-- Consider context: a post on a lighter (weed lighter) can discuss cannabis; that's contextual
-- Prioritize free expression; only remove clear violations
-- Always provide a brief reason for your decision
-
-You have access to bash and file tools if you need to analyze media files.`,
-    tools: [
-      { type: 'agent_toolset_20260401', default_config: { enabled: true } },
-    ],
-  })
-
-  return { agentId: agent.id, environmentId: environment.id }
+    const text = await openrouterPrompt(
+      'Generate one creative, memorable username for a social media app. Rules: lowercase only, no numbers, no spaces, no underscores, 10-20 chars total, sounds like a nature+personality mashup (e.g. "gentlestormcrest"). Output ONLY the username.',
+      undefined,
+      { maxTokens: 32, temperature: 0.9 }
+    )
+    const cleaned = text.trim().toLowerCase().replace(/[^a-z]/g, '')
+    if (cleaned && /^[a-z]{8,25}$/.test(cleaned)) return cleaned
+  } catch { /* fall through */ }
+  return ''
 }
