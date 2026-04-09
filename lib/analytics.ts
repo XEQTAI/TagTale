@@ -46,7 +46,7 @@ export async function log(
 ): Promise<void> {
   try {
     await prisma.systemLog.create({
-      data: { level, message, context: context ?? undefined },
+      data: { level, message, meta: context ?? undefined },
     })
   } catch {
     // Silently fail — don't let logging errors break the app
@@ -107,7 +107,7 @@ export async function getAnalyticsSummary(days = 30) {
   }
 }
 
-export async function getScanLocations(objectId?: string) {
+export async function getScanLocations(objectId?: string, limit = 1000) {
   const where = objectId ? { objectId } : {}
   return prisma.scan.findMany({
     where: { ...where, latitude: { not: null }, longitude: { not: null } },
@@ -121,6 +121,6 @@ export async function getScanLocations(objectId?: string) {
       user: { select: { username: true } },
     },
     orderBy: { scannedAt: 'desc' },
-    take: 1000,
+    take: limit,
   })
 }
