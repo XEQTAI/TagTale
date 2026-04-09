@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: 'Scan. Post. Follow the story of any physical object.',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'TagTale' },
+  other: { 'mobile-web-app-capable': 'yes' },
   icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
 }
 
