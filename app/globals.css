@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Use system font stack — avoids Google Fonts network dependency */
+:root { --font-inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+
 /* ─── Design tokens ────────────────────────────────────────────────────────
    Light mode: off-white page, white surfaces, near-black text.
    Dark  mode: near-black page, dark-gray surfaces, near-white text.

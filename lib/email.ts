@@ -3,10 +3,17 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM_EMAIL = process.env.EMAIL_FROM || 'TagTale <noreply@tagtale.app>'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const IS_DEV = process.env.NODE_ENV === 'development' || process.env.RESEND_API_KEY === 're_dev_placeholder'
 
 export async function sendMagicLink(email: string, token: string): Promise<void> {
-  const magicUrl = `${BASE_URL}/auth/verify?token=${token}`
+  const magicUrl = `${BASE_URL}/verify?token=${token}`
+
+  if (IS_DEV) {
+    console.log('\n📧 [DEV] Magic link for', email)
+    console.log('👉', magicUrl, '\n')
+    return
+  }
 
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
@@ -48,6 +55,10 @@ export async function sendMagicLink(email: string, token: string): Promise<void>
 }
 
 export async function sendWelcomeEmail(email: string, username: string): Promise<void> {
+  if (IS_DEV) {
+    console.log(`\n📧 [DEV] Welcome email for ${username} (${email})\n`)
+    return
+  }
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: email,

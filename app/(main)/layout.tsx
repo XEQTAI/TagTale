@@ -1,12 +1,26 @@
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { getSession, createSessionToken, setSessionCookie } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Home, Search, User, Settings } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession()
+  let session = await getSession()
+
+  // Dev auto-login: sign in as the seed admin without needing email
+  if (!session && process.env.NODE_ENV === 'development') {
+    const admin = await prisma.user.findFirst({ where: { isAdmin: true } })
+    if (admin) {
+      const token = await createSessionToken(admin.id)
+      await setSessionCookie(token)
+      session = { userId: admin.id, user: { id: admin.id, email: admin.email, username: admin.username, avatarUrl: admin.avatarUrl, isAdmin: admin.isAdmin } }
+    } else {
+      redirect('/login')
+    }
+  }
+
   if (!session) redirect('/login')
 
   return (
