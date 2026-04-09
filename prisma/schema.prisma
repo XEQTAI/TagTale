@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  avatarUrl String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  reports       Report[]
+  scans         Scan[]
+  objectFollows ObjectFollow[]
+  createdObjects TagObject[]
+}
+
+model MagicLink {
+  id        String    @id @default(cuid())
+  email     String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+model TagObject {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  qrCodeUrl   String?
+  sponsorId   String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sponsor   Sponsor?     @relation(fields: [sponsorId], references: [id])
+  createdBy User         @relation(fields: [createdById], references: [id])
+  scans     Scan[]
+  posts     Post[]
+  followers ObjectFollow[]
+
+  @@index([sponsorId])
+  @@index([createdById])
+}
+
+model Scan {
+  id        String   @id @default(cuid())
+  objectId  String
+  userId    String
+  latitude  Float?
+  longitude Float?
+  scannedAt DateTime @default(now())
+
+  object TagObject @relation(fields: [objectId], references: [id])
+  user   User      @relation(fields: [userId], references: [id])
+  posts  Post[]
+
+  @@index([objectId])
+  @@index([userId])
+  @@index([scannedAt])
+}
+
+model ObjectFollow {
+  id          String   @id @default(cuid())
+  objectId    String
+  userId      String
+  isFollowing Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  object TagObject @relation(fields: [objectId], references: [id])
+  user   User      @relation(fields: [userId], references: [id])
+
+  @@unique([objectId, userId])
+  @@index([userId])
+}
+
+model Post {
+  id               String    @id @default(cuid())
+  objectId         String
+  userId           String
+  scanId           String?
+  content          String?
+  mediaUrl         String?
+  mediaType        String?   // "image" | "video"
+  views            Int       @default(0)
+  moderationStatus String    @default("pending") // "pending" | "approved" | "rejected"
+  moderationNotes  String?
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime?
+
+  object   TagObject @relation(fields: [objectId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  scan     Scan?     @relation(fields: [scanId], references: [id])
+  comments Comment[]
+  likes    Like[]
+  reports  Report[]
+
+  @@index([objectId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([moderationStatus])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  reason    String
+  status    String   @default("pending") // "pending" | "reviewed" | "actioned" | "dismissed"
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([postId])
+  @@index([status])
+}
+
+model Sponsor {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  website   String?
+  createdAt DateTime @default(now())
+
+  objects TagObject[]
+  ads     Ad[]
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  sponsorId   String
+  content     String
+  mediaUrl    String?
+  targetTags  String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  sponsor     Sponsor        @relation(fields: [sponsorId], references: [id])
+  impressions AdImpression[]
+
+  @@index([sponsorId])
+  @@index([isActive])
+}
+
+model AdImpression {
+  id        String   @id @default(cuid())
+  adId      String
+  userId    String
+  createdAt DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id])
+
+  @@index([adId])
+  @@index([userId])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  eventType String
+  userId    String?
+  objectId  String?
+  postId    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([userId])
+  @@index([objectId])
+  @@index([createdAt])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // "info" | "warn" | "error"
+  message   String
+  context   Json?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([createdAt])
+}
