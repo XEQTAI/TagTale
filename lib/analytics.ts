@@ -5,15 +5,20 @@ export type EventType =
   | 'post_create'
   | 'post_view'
   | 'post_like'
+  | 'post_unlike'
   | 'post_comment'
   | 'post_report'
+  | 'comment_create'
   | 'object_follow'
   | 'object_unfollow'
   | 'user_signup'
   | 'user_login'
   | 'qr_generate'
   | 'qr_print'
+  | 'qr_pdf_download'
   | 'ad_impression'
+  | 'admin_post_delete'
+  | 'admin_moderation_update'
 
 export async function trackEvent(
   eventType: EventType,
