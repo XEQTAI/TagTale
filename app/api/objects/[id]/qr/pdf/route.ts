@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     await trackEvent('qr_pdf_download', { userId: session.userId, objectId })
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="tagtale-${objectId}.pdf"`,
