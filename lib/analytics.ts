@@ -14,6 +14,7 @@ export type EventType =
   | 'qr_generate'
   | 'qr_print'
   | 'ad_impression'
+  | 'admin_post_delete'
 
 export async function trackEvent(
   eventType: EventType,
