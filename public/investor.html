@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TagTale — Investor Brief</title>
+  <style>
+    @page { size: A4; margin: 0; }
+
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #fff;
+      color: #0a0a0a;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: #0a0a0a;
+      padding: 18px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: #f7f7f7;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 900; color: #0a0a0a;
+    }
+
+    .logo-name {
+      font-size: 18px; font-weight: 700;
+      color: #f7f7f7; letter-spacing: -0.5px;
+    }
+
+    .topbar-right {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: #555;
+    }
+
+    /* ── Hero split ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 148px;
+    }
+
+    .hero-left {
+      background: #0a0a0a;
+      padding: 36px 52px 36px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left::after {
+      content: '';
+      position: absolute;
+      bottom: -50px; right: -50px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: #161616;
+    }
+
+    .hero-headline {
+      font-size: 30px; font-weight: 800;
+      line-height: 1.1; letter-spacing: -1px;
+      color: #f7f7f7;
+      position: relative; z-index: 1;
+    }
+
+    .hero-headline em { font-style: normal; color: #555; }
+
+    .hero-right {
+      background: #f7f7f7;
+      padding: 36px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-tagline {
+      font-size: 13px; line-height: 1.65;
+      color: #444; margin-bottom: 16px;
+    }
+
+    .badge-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      background: #0a0a0a; color: #f7f7f7;
+      border-radius: 100px;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Stats row ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid #e4e4e4;
+      border-bottom: 1px solid #e4e4e4;
+    }
+
+    .stat {
+      padding: 20px 24px;
+      border-right: 1px solid #e4e4e4;
+      text-align: center;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-size: 26px; font-weight: 800;
+      letter-spacing: -1px; color: #0a0a0a;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #aaa;
+    }
+
+    /* ── Two column body ── */
+    .body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+    }
+
+    .col {
+      padding: 28px 36px;
+      border-right: 1px solid #e4e4e4;
+    }
+
+    .col:last-child { border-right: none; }
+
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: #bbb; margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e4e4e4;
+    }
+
+    /* Problem / Solution */
+    .ps-block { margin-bottom: 18px; }
+    .ps-title {
+      font-size: 12px; font-weight: 700;
+      color: #0a0a0a; margin-bottom: 5px;
+    }
+    .ps-text {
+      font-size: 11.5px; line-height: 1.6; color: #555;
+    }
+
+    /* Revenue streams */
+    .revenue-item {
+      display: flex; gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .rev-icon {
+      width: 28px; height: 28px;
+      background: #0a0a0a;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+
+    .rev-title {
+      font-size: 12px; font-weight: 700;
+      color: #0a0a0a; margin-bottom: 2px;
+    }
+
+    .rev-desc {
+      font-size: 11px; line-height: 1.5; color: #666;
+    }
+
+    /* Traction */
+    .traction-row {
+      display: flex; justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+
+    .traction-row:last-child { border-bottom: none; }
+
+    .traction-label { color: #555; font-weight: 500; }
+    .traction-val { font-weight: 700; color: #0a0a0a; }
+
+    /* Roadmap */
+    .roadmap-item {
+      display: flex; gap: 12px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .road-quarter {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1px; color: #fff;
+      background: #0a0a0a;
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .road-text {
+      font-size: 11.5px; line-height: 1.5; color: #333;
+    }
+
+    /* Ask section */
+    .ask {
+      background: #0a0a0a;
+      padding: 24px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .ask-left { flex: 1; }
+
+    .ask-eyebrow {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: #444; margin-bottom: 8px;
+    }
+
+    .ask-headline {
+      font-size: 20px; font-weight: 800;
+      letter-spacing: -0.5px; color: #f7f7f7;
+      margin-bottom: 6px;
+    }
+
+    .ask-sub {
+      font-size: 12px; color: #666; line-height: 1.55;
+    }
+
+    .ask-items {
+      display: flex; gap: 24px;
+    }
+
+    .ask-item {
+      text-align: center;
+    }
+
+    .ask-num {
+      font-size: 22px; font-weight: 800;
+      color: #f7f7f7; letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .ask-item-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #444; margin-top: 4px;
+    }
+
+    .ask-divider {
+      width: 1px; background: #222;
+      align-self: stretch;
+    }
+
+    /* Bottom strip */
+    .bottom-strip {
+      background: #f0f0f0;
+      padding: 10px 52px;
+      display: flex; justify-content: space-between;
+      align-items: center;
+    }
+
+    .bottom-url {
+      font-size: 11px; font-weight: 600; color: #888;
+    }
+
+    .bottom-legal {
+      font-size: 10px; color: #bbb;
+    }
+
+    @media print {
+      body { width: 210mm; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="logo-row">
+      <div class="logo-mark">T</div>
+      <span class="logo-name">TagTale</span>
+    </div>
+    <div class="topbar-right">Investor Brief · Confidential</div>
+  </div>
+
+  <!-- Hero split -->
+  <div class="hero">
+    <div class="hero-left">
+      <h1 class="hero-headline">The social layer<br/>for the <em>physical</em><br/>world.</h1>
+    </div>
+    <div class="hero-right">
+      <p class="hero-tagline">TagTale attaches a living social feed to any physical object via QR. Every scan, post and story accumulates permanently — creating a new content primitive that travels with the thing itself.</p>
+      <div class="badge-row">
+        <span class="badge">Pre-Seed</span>
+        <span class="badge">B2C + B2B</span>
+        <span class="badge">SaaS + Ads</span>
+        <span class="badge">PWA · No App</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">2.5B</div>
+      <div class="stat-label">QR scans / yr globally</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$18B</div>
+      <div class="stat-label">Location-based ad market</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6.8B</div>
+      <div class="stat-label">Physical objects tagged yearly</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Direct competitors at scale</div>
+    </div>
+  </div>
+
+  <!-- Body columns -->
+  <div class="body">
+
+    <!-- Left col -->
+    <div class="col">
+
+      <!-- Problem / Solution -->
+      <div class="section-label">Problem &amp; Solution</div>
+
+      <div class="ps-block">
+        <div class="ps-title">📌 &nbsp;Physical objects are socially silent</div>
+        <div class="ps-text">A vintage guitar, a city landmark, a shared tool — all carry rich human history with no way to surface it. QR codes today route to static pages or web links that expire.</div>
+      </div>
+
+      <div class="ps-block">
+        <div class="ps-title">💡 &nbsp;TagTale makes objects social</div>
+        <div class="ps-text">We turn any QR into a persistent, community-owned feed. Content is tied to the object — not a user, not a brand page. It compounds in value with every scan and post.</div>
+      </div>
+
+      <div class="ps-block">
+        <div class="ps-title">🔒 &nbsp;Moat: the content itself</div>
+        <div class="ps-text">Each tagged object builds a corpus of stories impossible to migrate. The longer it exists, the more valuable — and the harder to replicate.</div>
+      </div>
+
+      <!-- Revenue -->
+      <div class="section-label" style="margin-top:18px;">Revenue Model</div>
+
+      <div class="revenue-item">
+        <div class="rev-icon">💼</div>
+        <div>
+          <div class="rev-title">Brand &amp; Sponsor Subscriptions</div>
+          <div class="rev-desc">Businesses pay monthly to tag products, venues and assets — with analytics, custom branding and promoted posts.</div>
+        </div>
+      </div>
+
+      <div class="revenue-item">
+        <div class="rev-icon">📣</div>
+        <div>
+          <div class="rev-title">Contextual Advertising</div>
+          <div class="rev-desc">Geo-targeted ads served in-feed, priced by CPM. High intent: user just scanned a relevant physical object.</div>
+        </div>
+      </div>
+
+      <div class="revenue-item">
+        <div class="rev-icon">🖨️</div>
+        <div>
+          <div class="rev-title">QR Print &amp; Fulfilment</div>
+          <div class="rev-desc">Premium QR tag packs (NFC + printed) shipped to businesses. Recurring accessory revenue.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right col -->
+    <div class="col">
+
+      <!-- Traction -->
+      <div class="section-label">Early Indicators</div>
+
+      <div class="traction-row">
+        <span class="traction-label">Platform status</span>
+        <span class="traction-val">Live MVP</span>
+      </div>
+      <div class="traction-row">
+        <span class="traction-label">Infrastructure</span>
+        <span class="traction-val">Production · Supabase + Netlify</span>
+      </div>
+      <div class="traction-row">
+        <span class="traction-label">Tech stack</span>
+        <span class="traction-val">Next.js 14 · Prisma · Tailwind</span>
+      </div>
+      <div class="traction-row">
+        <span class="traction-label">AI moderation</span>
+        <span class="traction-val">Built-in (Claude)</span>
+      </div>
+      <div class="traction-row">
+        <span class="traction-label">Time to first post</span>
+        <span class="traction-val">&lt; 60 seconds</span>
+      </div>
+      <div class="traction-row">
+        <span class="traction-label">App download required</span>
+        <span class="traction-val">None — works in browser</span>
+      </div>
+
+      <!-- Roadmap -->
+      <div class="section-label" style="margin-top:20px;">Roadmap</div>
+
+      <div class="roadmap-item">
+        <span class="road-quarter">Q2 '25</span>
+        <div class="road-text">Public launch · first 1 000 objects tagged · onboard 3 local businesses</div>
+      </div>
+      <div class="roadmap-item">
+        <span class="road-quarter">Q3 '25</span>
+        <div class="road-text">NFC tag fulfilment · brand dashboard · ad network beta</div>
+      </div>
+      <div class="roadmap-item">
+        <span class="road-quarter">Q4 '25</span>
+        <div class="road-text">API for third-party QR systems · white-label for museums &amp; hospitality</div>
+      </div>
+      <div class="roadmap-item">
+        <span class="road-quarter">Q1 '26</span>
+        <div class="road-text">100k tagged objects · Series A raise · international expansion</div>
+      </div>
+
+      <!-- Why now -->
+      <div class="section-label" style="margin-top:20px;">Why Now</div>
+      <div class="ps-text" style="font-size:11.5px; line-height:1.65; color:#555;">
+        QR adoption exploded post-COVID — mainstream consumers now scan reflexively. Generative AI makes content moderation cheap. PWA technology eliminates app-install friction. The infrastructure moment for "physical-world social" is <strong style="color:#0a0a0a;">now</strong>.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Ask -->
+  <div class="ask">
+    <div class="ask-left">
+      <div class="ask-eyebrow">The Ask</div>
+      <div class="ask-headline">Raising a Pre-Seed Round</div>
+      <div class="ask-sub">To hire two engineers, fund QR tag production,<br/>and acquire the first 10 000 users.</div>
+    </div>
+    <div class="ask-divider"></div>
+    <div class="ask-items">
+      <div class="ask-item">
+        <div class="ask-num">$350K</div>
+        <div class="ask-item-label">Round size</div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">18mo</div>
+        <div class="ask-item-label">Runway</div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">10%</div>
+        <div class="ask-item-label">Equity offered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom strip -->
+  <div class="bottom-strip">
+    <span class="bottom-url">tagtale.netlify.app &nbsp;·&nbsp; hello@tagtale.app</span>
+    <span class="bottom-legal">Confidential — not for distribution</span>
+  </div>
+
+</div>
+</body>
+</html>
