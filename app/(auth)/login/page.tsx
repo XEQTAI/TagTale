@@ -1,14 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { z } from 'zod'
 import { createSupabaseClient } from '@/lib/supabase'
+
+const COOLDOWN = 60 // seconds
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => { if (timer.current) clearInterval(timer.current) }
+  }, [])
+
+  const startCooldown = () => {
+    setCooldown(COOLDOWN)
+    timer.current = setInterval(() => {
+      setCooldown((c) => {
+        if (c <= 1) { clearInterval(timer.current!); return 0 }
+        return c - 1
+      })
+    }, 1000)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,9 +48,15 @@ export default function LoginPage() {
         },
       })
       if (sbError) {
-        setError(sbError.message)
+        if (sbError.message.toLowerCase().includes('rate limit') || sbError.status === 429) {
+          setError('Too many requests — please wait 60 seconds before trying again.')
+          startCooldown()
+        } else {
+          setError(sbError.message)
+        }
         return
       }
+      startCooldown()
       setSubmitted(true)
     } catch {
       setError('Network error. Please try again.')
@@ -47,10 +71,17 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-xl">
           <div className="text-5xl mb-4">📬</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-sm mb-4">
             We sent a magic link to <strong>{email}</strong>.<br />
             Click it to sign in — expires in 15 minutes.
           </p>
+          <button
+            onClick={() => { setSubmitted(false); setError('') }}
+            disabled={cooldown > 0}
+            className="text-sm text-gray-400 disabled:cursor-not-allowed"
+          >
+            {cooldown > 0 ? `Resend available in ${cooldown}s` : 'Resend link'}
+          </button>
         </div>
       </main>
     )
@@ -87,10 +118,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading || !email}
+            disabled={loading || !email || cooldown > 0}
             className="w-full bg-brand-600 text-white font-semibold py-3 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Sending...' : 'Send magic link'}
+            {loading ? 'Sending…' : cooldown > 0 ? `Resend in ${cooldown}s` : 'Send magic link'}
           </button>
         </form>
       </div>
