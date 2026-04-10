@@ -76,8 +76,8 @@ export default function FeedList({ objectId, userId }: FeedListProps) {
     setPosts((prev) => prev.filter((p) => p.id !== id))
   }
 
-  const handlePostCreated = (post: FeedPost) => {
-    setPosts((prev) => [post, ...prev])
+  const handlePostCreated = (post: unknown) => {
+    setPosts((prev) => [post as FeedPost, ...prev])
   }
 
   if (loading) {

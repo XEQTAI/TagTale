@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
-    await log('error', 'Magic link send failed', { error: String(err) })
-    return NextResponse.json({ error: 'Failed to send magic link' }, { status: 500 })
+    await log('error', 'Magic link send failed', { error: String(err) }).catch(() => {})
+    return NextResponse.json({ error: 'Failed to send magic link', detail: String(err) }, { status: 500 })
   }
 }

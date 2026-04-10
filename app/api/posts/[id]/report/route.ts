@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       update: { reason, details },
     })
 
-    await trackEvent('post_report', { userId: session.userId, postId, reason })
+    await trackEvent('post_report', { userId: session.userId, postId, metadata: { reason } })
 
     // Count total reports — trigger deep moderation at threshold
     const reportCount = await prisma.report.count({ where: { postId } })

@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       data: { moderationStatus },
     })
 
-    await trackEvent('admin_moderation_update', { userId: session!.userId, postId, moderationStatus })
+    await trackEvent('admin_moderation_update', { userId: session!.userId, postId, metadata: { moderationStatus } })
 
     return NextResponse.json(post)
   } catch (err: unknown) {

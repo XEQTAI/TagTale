@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 
 export type EventType =
@@ -36,7 +37,7 @@ export async function trackEvent(
         userId: params.userId,
         objectId: params.objectId,
         postId: params.postId,
-        metadata: params.metadata ?? undefined,
+        metadata: params.metadata as Prisma.InputJsonValue ?? undefined,
       },
     })
   } catch (err) {
@@ -51,7 +52,7 @@ export async function log(
 ): Promise<void> {
   try {
     await prisma.systemLog.create({
-      data: { level, message, meta: context ?? undefined },
+      data: { level, message, meta: context as Prisma.InputJsonValue ?? undefined },
     })
   } catch {
     // Silently fail — don't let logging errors break the app

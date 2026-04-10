@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { z } from 'zod'
+import { createSupabaseClient } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -21,14 +22,15 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/magic-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const supabase = createSupabaseClient()
+      const { error: sbError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       })
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error || 'Something went wrong. Please try again.')
+      if (sbError) {
+        setError(sbError.message)
         return
       }
       setSubmitted(true)
