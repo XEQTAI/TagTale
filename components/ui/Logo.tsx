@@ -1,7 +1,3 @@
-/**
- * TagTale word-mark — no icon, just type.
- * "Tag" light weight, "Tale" bold. Monochrome, theme-aware.
- */
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
@@ -9,21 +5,20 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: 'text-base',
-  md: 'text-xl',
-  lg: 'text-3xl',
-  xl: 'text-5xl',
+  sm: 'text-base tracking-[0.2em]',
+  md: 'text-xl tracking-[0.24em]',
+  lg: 'text-3xl tracking-[0.28em]',
+  xl: 'text-5xl tracking-[0.33em]',
 }
 
 export default function Logo({ size = 'md', className = '', inverted = false }: LogoProps) {
   const color = inverted ? 'text-white' : 'text-ink'
   return (
     <span
-      className={`font-sans tracking-tight select-none leading-none ${sizes[size]} ${color} ${className}`}
+      className={`font-sans uppercase select-none leading-none ${sizes[size]} ${color} ${className}`}
       aria-label="TagTale"
     >
-      <span className="font-light">Tag</span>
-      <span className="font-bold">Tale</span>
+      <span className="font-medium">TAGTALE</span>
     </span>
   )
 }

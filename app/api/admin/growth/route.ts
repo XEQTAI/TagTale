@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { httpStatusFromAuthError } from '@/lib/http-status'
 import { prisma } from '@/lib/prisma'
 import { getSession, requireAdmin } from '@/lib/auth'
 
@@ -92,6 +93,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed'
-    return NextResponse.json({ error: msg }, { status: msg.includes('Forbidden') ? 403 : 500 })
+    return NextResponse.json({ error: msg }, { status: httpStatusFromAuthError(msg) })
   }
 }

@@ -46,8 +46,8 @@ export default function AuthCallbackPage() {
   }, [router])
 
   return (
-    <main className="min-h-screen bg-page flex items-center justify-center">
-      <div className="text-center">
+    <main className="min-h-screen bg-page flex items-center justify-center px-4">
+      <div className="card text-center px-10 py-9">
         <div className="w-10 h-10 border-2 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-ink-2 text-sm">{status}</p>
       </div>

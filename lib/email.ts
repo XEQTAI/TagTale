@@ -7,7 +7,7 @@ function getResend() {
 }
 
 const FROM_EMAIL = process.env.EMAIL_FROM || 'TagTale <noreply@tagtale.app>'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3333'
 
 function isDev() {
   return process.env.NODE_ENV === 'development' || process.env.RESEND_API_KEY === 're_dev_placeholder'

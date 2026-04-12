@@ -2,78 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Use system font stack — avoids Google Fonts network dependency */
-:root { --font-inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
-
-/* ─── Design tokens ────────────────────────────────────────────────────────
-   Light mode: off-white page, white surfaces, near-black text.
-   Dark  mode: near-black page, dark-gray surfaces, near-white text.
-   Neither ever shows white-on-white or black-on-black.
-   Color lives only in photos, avatars, and unicode emoji.
-   ────────────────────────────────────────────────────────────────────────── */
+/* Keep local/system font stack for reliability */
 :root {
-  /* Surfaces */
-  --page:      #F7F7F7;   /* off-white page bg  — never pure white */
-  --surface:   #FFFFFF;   /* cards, inputs, modals */
-  --surface-2: #F0F0F0;   /* secondary surfaces, hover states */
+  --font-inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
 
-  /* Text */
-  --ink:   #0A0A0A;   /* primary text  — never pure black */
-  --ink-2: #5C5C5C;   /* secondary text */
-  --ink-3: #9A9A9A;   /* placeholder, tertiary */
-
-  /* Borders */
-  --edge:   #E4E4E4;  /* default border */
-  --edge-2: #C8C8C8;  /* stronger border */
-
-  /* Brand palette — remapped to monochrome grays.
-     Invert automatically in dark mode so every `brand-*` class works everywhere. */
-  --brand-50:  #F7F7F7;
-  --brand-100: #EFEFEF;
-  --brand-200: #DCDCDC;
-  --brand-300: #BEBEBE;
-  --brand-400: #8C8C8C;
-  --brand-500: #525252;
-  --brand-600: #1A1A1A;   /* ← primary interactive */
-  --brand-700: #0D0D0D;
-  --brand-800: #060606;
-  --brand-900: #000000;
-  --brand-950: #000000;
+/* Premium dark-forward design tokens based on the TagTale kit */
+:root {
+  --page: #050608;
+  --surface: #101216;
+  --surface-2: #171b21;
+  --ink: #f6f8fb;
+  --ink-2: #b8c0cc;
+  --ink-3: #7f8895;
+  --edge: #242a33;
+  --edge-2: #343c48;
+  --brand-50: #eaf0ff;
+  --brand-100: #dbe6ff;
+  --brand-200: #beceff;
+  --brand-300: #99b3ff;
+  --brand-400: #6a8fff;
+  --brand-500: #4b74f4;
+  --brand-600: #365bd0;
+  --brand-700: #2a469e;
+  --brand-800: #203572;
+  --brand-900: #17264f;
+  --brand-950: #101933;
 }
 
 .dark {
-  --page:      #0A0A0A;   /* near-black page bg */
-  --surface:   #161616;   /* cards */
-  --surface-2: #222222;   /* hover, secondary surfaces */
-
-  --ink:   #F0F0F0;
-  --ink-2: #AAAAAA;
-  --ink-3: #666666;
-
-  --edge:   #2A2A2A;
-  --edge-2: #3C3C3C;
-
-  /* Inverted brand */
-  --brand-50:  #141414;
-  --brand-100: #1E1E1E;
-  --brand-200: #2C2C2C;
-  --brand-300: #404040;
-  --brand-400: #6A6A6A;
-  --brand-500: #A0A0A0;
-  --brand-600: #E6E6E6;   /* ← primary interactive in dark */
-  --brand-700: #F0F0F0;
-  --brand-800: #F6F6F6;
-  --brand-900: #FAFAFA;
-  --brand-950: #FFFFFF;
+  --page: #050608;
+  --surface: #101216;
+  --surface-2: #171b21;
+  --ink: #f6f8fb;
+  --ink-2: #b8c0cc;
+  --ink-3: #7f8895;
+  --edge: #242a33;
+  --edge-2: #343c48;
 }
 
-/* ─── Global base ──────────────────────────────────────────────────────── */
 @layer base {
-  html { color-scheme: light; }
+  html { color-scheme: dark; }
   html.dark { color-scheme: dark; }
 
   body {
-    background-color: var(--page);
+    background-color: #050608;
+    background-image:
+      radial-gradient(900px 500px at 15% -10%, rgba(99, 125, 255, 0.18), transparent 65%),
+      radial-gradient(700px 480px at 105% 20%, rgba(255, 255, 255, 0.05), transparent 60%),
+      radial-gradient(600px 320px at 50% 120%, rgba(50, 60, 76, 0.35), transparent 70%);
     color: var(--ink);
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
@@ -83,72 +60,90 @@
 
   * { border-color: var(--edge); }
 
-  /* Make common Tailwind utility classes theme-aware via CSS cascade */
-  .bg-white          { background-color: var(--surface) !important; }
-  .bg-gray-50        { background-color: var(--page)    !important; }
-  .bg-gray-100       { background-color: var(--surface-2) !important; }
+  .bg-white,
+  .bg-gray-50 { background-color: var(--surface) !important; }
+  .bg-gray-100 { background-color: var(--surface-2) !important; }
   .border-gray-100,
-  .border-gray-200   { border-color: var(--edge)  !important; }
-  .border-gray-300   { border-color: var(--edge-2) !important; }
-  .text-gray-900     { color: var(--ink)   !important; }
-  .text-gray-800     { color: var(--ink)   !important; }
-  .text-gray-700     { color: var(--ink-2) !important; }
-  .text-gray-600     { color: var(--ink-2) !important; }
-  .text-gray-500     { color: var(--ink-3) !important; }
-  .text-gray-400     { color: var(--ink-3) !important; }
+  .border-gray-200 { border-color: var(--edge) !important; }
+  .border-gray-300 { border-color: var(--edge-2) !important; }
+  .text-gray-900,
+  .text-gray-800 { color: var(--ink) !important; }
+  .text-gray-700,
+  .text-gray-600 { color: var(--ink-2) !important; }
+  .text-gray-500,
+  .text-gray-400 { color: var(--ink-3) !important; }
 }
 
-/* ─── Semantic utilities ───────────────────────────────────────────────── */
 @layer utilities {
-  /* Apply these in new components instead of raw gray-* classes */
-  .bg-surface   { background-color: var(--surface); }
+  .bg-surface { background-color: var(--surface); }
   .bg-surface-2 { background-color: var(--surface-2); }
-  .bg-page      { background-color: var(--page); }
-  .text-ink     { color: var(--ink); }
-  .text-ink-2   { color: var(--ink-2); }
-  .text-ink-3   { color: var(--ink-3); }
-  .border-edge  { border-color: var(--edge); }
+  .bg-page { background-color: var(--page); }
+  .text-ink { color: var(--ink); }
+  .text-ink-2 { color: var(--ink-2); }
+  .text-ink-3 { color: var(--ink-3); }
+  .border-edge { border-color: var(--edge); }
   .border-edge-2 { border-color: var(--edge-2); }
-}
 
-/* ─── Component patterns ───────────────────────────────────────────────── */
-@layer components {
-  /* Card: white surface that floats above page bg */
-  .card {
-    background-color: var(--surface);
-    border: 1px solid var(--edge);
-    border-radius: 1rem;
+  .tt-shell {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: 1rem;
   }
 
-  /* Primary button: solid black/white that auto-inverts */
+  .board-text {
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  .card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+      var(--surface);
+    border: 1px solid var(--edge);
+    border-radius: 1.125rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+  }
+
   .btn-primary {
-    background-color: var(--ink);
-    color: var(--page);
+    background: linear-gradient(180deg, #ffffff, #d8dee8);
+    color: #07090d;
     font-weight: 600;
     padding: 0.625rem 1.25rem;
     border-radius: 0.75rem;
-    transition: opacity 0.15s;
+    transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
   }
-  .btn-primary:hover  { opacity: 0.85; }
+  .btn-primary:hover { transform: translateY(-1px); opacity: 0.95; }
+  .btn-primary:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px rgba(106, 143, 255, 0.45),
+      0 8px 24px rgba(0, 0, 0, 0.32);
+  }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Ghost button */
   .btn-ghost {
-    background-color: transparent;
-    color: var(--ink);
-    border: 1px solid var(--edge-2);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--ink-2);
+    border: 1px solid var(--edge);
     font-weight: 500;
     padding: 0.625rem 1.25rem;
     border-radius: 0.75rem;
-    transition: background-color 0.15s;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   }
-  .btn-ghost:hover { background-color: var(--surface-2); }
-
-  /* Input */
-  .input {
-    background-color: var(--surface);
+  .btn-ghost:hover {
+    background-color: var(--surface-2);
     color: var(--ink);
-    border: 1px solid var(--edge-2);
+    border-color: var(--edge-2);
+  }
+
+  .input {
+    background-color: rgba(255, 255, 255, 0.015);
+    color: var(--ink);
+    border: 1px solid var(--edge);
     border-radius: 0.75rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
@@ -158,23 +153,86 @@
   .input::placeholder { color: var(--ink-3); }
   .input:focus {
     outline: none;
-    border-color: var(--ink);
+    border-color: #8ca4ff;
+    box-shadow: 0 0 0 3px rgba(86, 113, 255, 0.2);
   }
 
-  /* Post card hover */
-  .post-card { transition: box-shadow 0.15s; }
+  .post-card { transition: box-shadow 0.2s, border-color 0.2s; }
+  .post-card:hover {
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.52);
+    border-color: var(--edge-2);
+  }
 
-  /* Feed container */
-  .feed-container { max-width: 32rem; margin-left: auto; margin-right: auto; }
+  .feed-container { max-width: 42rem; margin-left: auto; margin-right: auto; }
+
+  .board-vignette {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .board-vignette::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(100% 65% at 50% 100%, rgba(0, 0, 0, 0.55) 10%, rgba(0, 0, 0, 0) 70%),
+      radial-gradient(80% 60% at 0% 45%, rgba(0, 0, 0, 0.45) 10%, rgba(0, 0, 0, 0) 70%),
+      radial-gradient(80% 60% at 100% 45%, rgba(0, 0, 0, 0.45) 10%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .board-panel {
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01)),
+      #0d1015;
+    border: 1px solid #2a313c;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 16px 40px rgba(0, 0, 0, 0.55);
+    border-radius: 1.25rem;
+  }
+
+  .board-tile {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
+      #0f1319;
+    border: 1px solid #2d3644;
+    border-radius: 1rem;
+  }
+
+  /* Landing — soft spotlight behind hero (respects reduced motion via static gradient) */
+  .landing-hero-shell {
+    position: relative;
+    isolation: isolate;
+  }
+  .landing-hero-shell::before {
+    content: '';
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: min(70vh, 520px);
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      rgba(99, 125, 255, 0.22),
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Landing — sections use the same canvas as the page; separation is spacing + hairline (see page.tsx). */
 }
 
-/* ─── PWA / print ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:hover { transform: none; }
+}
+
 @media print {
-  .no-print   { display: none !important; }
+  .no-print { display: none !important; }
   .print-only { display: block !important; }
 }
 
-/* ─── Scrollbar (subtle) ───────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background-color: var(--edge-2); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background-color: var(--edge-2); border-radius: 8px; }

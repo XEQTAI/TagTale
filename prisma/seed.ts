@@ -86,7 +86,17 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    if (msg.includes("Can't reach database") || msg.includes('P1001')) {
+      console.error('\n❌ Cannot connect to PostgreSQL (see DATABASE_URL in .env, usually localhost:5432).')
+      console.error('\nStart a database first, then run:  npx prisma db push  &&  npm run db:seed\n')
+      console.error('Options:')
+      console.error('  • Docker: install Docker Desktop, open a terminal in this project folder, run:  docker compose up -d')
+      console.error('  • No Docker: install PostgreSQL for Windows from https://www.postgresql.org/download/windows/')
+      console.error('    Create a database and user that match DATABASE_URL in .env, then run db push + seed again.\n')
+    } else {
+      console.error(e)
+    }
     process.exit(1)
   })
   .finally(() => prisma.$disconnect())

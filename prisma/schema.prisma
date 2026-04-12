@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Netlify runs Linux + OpenSSL 3 (Node 20+); without this, Prisma can fail at runtime on deploy.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -103,6 +105,10 @@ model Post {
   scanId           String?
   content          String?
   mediaUrl         String?
+  /// Object key (e.g. userId/file.jpg) — private bucket; signed URLs in API responses
+  mediaStorageKey  String?
+  /// r2 | supabase — null + mediaStorageKey means legacy Supabase
+  mediaStorageBackend String?
   mediaType        String?   // "image" | "video"
   views            Int       @default(0)
   moderationStatus String    @default("pending")  // "pending" | "approved" | "rejected"

@@ -1,14 +1,17 @@
-const CACHE_NAME = 'tagtale-v1'
-const STATIC_ASSETS = [
-  '/',
-  '/feed',
-  '/manifest.json',
-  '/icon-192.png',
-]
+const CACHE_NAME = 'tagtale-v3'
+const STATIC_ASSETS = ['/', '/feed', '/manifest.json', '/icon-192.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        STATIC_ASSETS.map((url) =>
+          fetch(url)
+            .then((res) => (res.ok ? cache.put(url, res) : undefined))
+            .catch(() => undefined)
+        )
+      )
+    )
   )
   self.skipWaiting()
 })
@@ -26,6 +29,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
 
+  // Next.js dev/prod chunks must never be cache-first (stale chunks → 404 / broken UI)
+  if (url.pathname.startsWith('/_next/')) {
+    return
+  }
+
   // Don't cache API calls or auth routes
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/api/auth/')) {
     return
@@ -36,8 +44,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const clone = res.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+          if (res.ok) {
+            const clone = res.clone()
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+          }
           return res
         })
         .catch(() => caches.match(request).then((r) => r || caches.match('/feed')))
@@ -51,8 +61,10 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then((cached) => {
         if (cached) return cached
         return fetch(request).then((res) => {
-          const clone = res.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+          if (res.ok) {
+            const clone = res.clone()
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+          }
           return res
         })
       })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession, requireAdmin } from '@/lib/auth'
+import { httpStatusFromAuthError } from '@/lib/http-status'
 import { z } from 'zod'
 
 const sponsorSchema = z.object({
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ sponsors, pipeline })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed'
-    return NextResponse.json({ error: msg }, { status: msg.includes('Forbidden') ? 403 : 500 })
+    return NextResponse.json({ error: msg }, { status: httpStatusFromAuthError(msg) })
   }
 }
 
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     if (err instanceof z.ZodError) return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
     const msg = err instanceof Error ? err.message : 'Failed'
-    return NextResponse.json({ error: msg }, { status: msg.includes('Forbidden') ? 403 : 500 })
+    return NextResponse.json({ error: msg }, { status: httpStatusFromAuthError(msg) })
   }
 }
 
@@ -116,6 +117,6 @@ export async function PATCH(req: NextRequest) {
   } catch (err: unknown) {
     if (err instanceof z.ZodError) return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
     const msg = err instanceof Error ? err.message : 'Failed'
-    return NextResponse.json({ error: msg }, { status: msg.includes('Forbidden') ? 403 : 500 })
+    return NextResponse.json({ error: msg }, { status: httpStatusFromAuthError(msg) })
   }
 }

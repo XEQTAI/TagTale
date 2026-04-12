@@ -4,7 +4,7 @@ import ObjectHeader from '@/components/object/ObjectHeader'
 import FeedList from '@/components/feed/FeedList'
 
 async function getObject(id: string, userId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3333'
   const res = await fetch(`${baseUrl}/api/objects/${id}`, {
     headers: { Cookie: `session=${userId}` }, // session cookie forwarded server-side
     cache: 'no-store',

@@ -4,6 +4,9 @@
  */
 import { openrouterPrompt, openrouterVision } from './openrouter'
 import { prisma } from './prisma'
+import { createSignedMediaUrl } from './media-sign'
+import { PREVIEW_SIGNED_URL_TTL_SEC } from './storage-signing'
+import type { MediaStorageBackend } from './media-sign'
 
 export type ModerationResult = {
   approved: boolean
@@ -67,18 +70,29 @@ export async function deepModeratePosts(postIds: string[]): Promise<void> {
 
     for (const post of posts) {
       const reasons = post.reports.map((r) => r.reason).join(', ')
+      const hasMedia = Boolean(post.mediaUrl || post.mediaStorageKey)
       const context = [
         post.content && `Content: "${post.content}"`,
-        post.mediaUrl && `Has ${post.mediaType || 'media'} attachment`,
+        hasMedia && `Has ${post.mediaType || 'media'} attachment`,
         `Reported for: ${reasons}`,
       ]
         .filter(Boolean)
         .join('\n')
 
+      const visionUrl =
+        post.mediaUrl ||
+        (post.mediaStorageKey
+          ? await createSignedMediaUrl(
+              post.mediaStorageKey,
+              (post.mediaStorageBackend as MediaStorageBackend | null) ?? null,
+              PREVIEW_SIGNED_URL_TTL_SEC
+            )
+          : null)
+
       let result: ModerationResult
-      if (post.mediaUrl) {
+      if (visionUrl) {
         const raw = await openrouterVision(
-          post.mediaUrl,
+          visionUrl,
           `${context}\nShould this post be removed? JSON only: {"approved":bool,"status":"approved"|"rejected","reason":string}`,
           { maxTokens: 128 }
         ).catch(() => '{"approved":true,"status":"approved","reason":null}')

@@ -3,14 +3,24 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { moderateContent } from '@/lib/ai'
 import { trackEvent } from '@/lib/analytics'
+import { createSignedMediaUrl } from '@/lib/media-sign'
+import type { MediaStorageBackend } from '@/lib/media-sign'
+import { PREVIEW_SIGNED_URL_TTL_SEC } from '@/lib/storage-signing'
+import { resolvePostMediaForClient } from '@/lib/post-media'
 import { z } from 'zod'
 
-const schema = z.object({
-  objectId: z.string().min(1),
-  content: z.string().max(2000).optional(),
-  mediaUrl: z.string().url().optional(),
-  mediaType: z.enum(['image', 'video']).optional(),
-})
+const schema = z
+  .object({
+    objectId: z.string().min(1),
+    content: z.string().max(2000).optional(),
+    mediaUrl: z.string().url().optional(),
+    mediaStorageKey: z.string().min(1).optional(),
+    mediaStorageBackend: z.enum(['r2', 'supabase']).optional(),
+    mediaType: z.enum(['image', 'video']).optional(),
+  })
+  .refine((d) => Boolean(d.content?.trim()) || d.mediaUrl || d.mediaStorageKey, {
+    message: 'Post must have content or media',
+  })
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,10 +28,13 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { objectId, content, mediaUrl, mediaType } = schema.parse(body)
+    const { objectId, content, mediaUrl, mediaStorageKey, mediaStorageBackend, mediaType } =
+      schema.parse(body)
 
-    if (!content && !mediaUrl) {
-      return NextResponse.json({ error: 'Post must have content or media' }, { status: 400 })
+    if (mediaStorageKey) {
+      if (!mediaStorageKey.startsWith(`${session.userId}/`)) {
+        return NextResponse.json({ error: 'Invalid media' }, { status: 403 })
+      }
     }
 
     // Check object exists
@@ -42,15 +55,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Quick AI moderation check
-    const moderation = await moderateContent({ text: content, mediaUrl })
+    const backendForSign: MediaStorageBackend | null = mediaStorageKey
+      ? mediaStorageBackend ?? 'supabase'
+      : null
+
+    let moderationMediaUrl: string | undefined
+    if (mediaStorageKey) {
+      moderationMediaUrl =
+        (await createSignedMediaUrl(
+          mediaStorageKey,
+          backendForSign,
+          PREVIEW_SIGNED_URL_TTL_SEC
+        )) ?? undefined
+    } else {
+      moderationMediaUrl = mediaUrl
+    }
+
+    const moderation = await moderateContent({ text: content, mediaUrl: moderationMediaUrl })
 
     const post = await prisma.post.create({
       data: {
         objectId,
         userId: session.userId,
         content,
-        mediaUrl,
+        mediaUrl: mediaStorageKey ? null : mediaUrl ?? null,
+        mediaStorageKey: mediaStorageKey ?? null,
+        mediaStorageBackend: mediaStorageKey ? backendForSign : null,
         mediaType,
         moderationStatus: moderation.approved ? 'approved' : 'rejected',
       },
@@ -69,7 +99,10 @@ export async function POST(req: NextRequest) {
 
     await trackEvent('post_create', { userId: session.userId, objectId, postId: post.id })
 
-    return NextResponse.json({ ...post, likedByMe: false }, { status: 201 })
+    const mediaUrlOut = await resolvePostMediaForClient(post)
+    const { mediaStorageKey: _sk, mediaStorageBackend: _sb, ...rest } = post
+
+    return NextResponse.json({ ...rest, mediaUrl: mediaUrlOut, likedByMe: false }, { status: 201 })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 })

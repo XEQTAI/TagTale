@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession, requireAdmin } from '@/lib/auth'
+import { httpStatusFromAuthError } from '@/lib/http-status'
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to fetch logs'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }

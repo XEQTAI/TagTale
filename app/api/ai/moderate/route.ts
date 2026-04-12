@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, requireAdmin } from '@/lib/auth'
 import { moderateContent } from '@/lib/ai'
+import { httpStatusFromAuthError } from '@/lib/http-status'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
     }
     const message = err instanceof Error ? err.message : 'Moderation failed'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }

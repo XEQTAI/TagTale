@@ -4,9 +4,20 @@ import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
 import type { User } from '@prisma/client'
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-change-in-production-immediately'
-)
+function getJwtSecretBytes(): Uint8Array {
+  const secret = process.env.JWT_SECRET
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret || secret.length < 32) {
+      throw new Error(
+        'JWT_SECRET must be set to a strong random value (at least 32 characters) in production'
+      )
+    }
+    return new TextEncoder().encode(secret)
+  }
+  return new TextEncoder().encode(secret || 'dev-only-fallback-not-for-production')
+}
+
+const JWT_SECRET = getJwtSecretBytes()
 
 const SESSION_COOKIE = 'session'
 const SESSION_DURATION_DAYS = 30

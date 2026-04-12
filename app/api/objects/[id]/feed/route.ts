@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { signPostsForClient } from '@/lib/post-media'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -43,9 +44,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const hasMore = posts.length > limit
     const items = hasMore ? posts.slice(0, -1) : posts
 
-    const formattedPosts = items.map((p) => ({
+    const signedItems = await signPostsForClient(items)
+
+    const formattedPosts = signedItems.map((p, i) => ({
       ...p,
-      likedByMe: session ? (p.likes as { userId: string }[]).length > 0 : false,
+      likedByMe: session ? (items[i].likes as { userId: string }[]).length > 0 : false,
       likes: undefined,
     }))
 

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { CircleX, ShieldCheck } from 'lucide-react'
 
 // The actual verification happens in /api/auth/verify which redirects to /feed
 // This page is shown only if someone navigates here directly
@@ -12,27 +13,27 @@ export default function VerifyPage({
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-brand-600 to-pink-500 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-xl">
+    <main className="min-h-screen board-vignette flex items-center justify-center px-4 py-10">
+      <div className="board-panel rounded-2xl p-8 max-w-sm w-full text-center">
         {searchParams.error ? (
           <>
-            <div className="text-5xl mb-4">❌</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Link expired or invalid</h2>
-            <p className="text-gray-500 text-sm mb-6">
+            <CircleX size={44} className="mx-auto mb-4 text-rose-300" />
+            <h2 className="text-xl font-bold text-ink mb-2">Link expired or invalid</h2>
+            <p className="text-ink-2 text-sm mb-6">
               Magic links expire after 15 minutes. Request a new one.
             </p>
             <a
               href="/login"
-              className="block w-full bg-brand-600 text-white font-semibold py-3 rounded-xl hover:bg-brand-700 transition-colors"
+              className="btn-primary block w-full py-3 rounded-xl"
             >
               Back to login
             </a>
           </>
         ) : (
           <>
-            <div className="text-5xl mb-4">🔗</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Verifying...</h2>
-            <p className="text-gray-500 text-sm">Please wait while we sign you in.</p>
+            <ShieldCheck size={44} className="mx-auto mb-4 text-ink-2" />
+            <h2 className="text-xl font-bold text-ink mb-2">Verifying...</h2>
+            <p className="text-ink-2 text-sm">Please wait while we sign you in.</p>
           </>
         )}
       </div>

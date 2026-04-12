@@ -70,7 +70,7 @@ export default function CrmPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">CRM</h1>
+          <h1 className="text-2xl font-bold text-ink tracking-wide uppercase">CRM</h1>
           <p className="text-sm text-ink-3 mt-0.5">Sponsor relationships &amp; sales pipeline</p>
         </div>
         <button onClick={() => setShowNew(true)} className="btn-primary flex items-center gap-1.5 text-sm">

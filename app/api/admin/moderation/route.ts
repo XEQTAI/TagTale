@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession, requireAdmin } from '@/lib/auth'
 import { deepModeratePosts } from '@/lib/ai'
+import { httpStatusFromAuthError } from '@/lib/http-status'
+import { signPostsForClient } from '@/lib/post-media'
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,10 +29,12 @@ export async function GET(req: NextRequest) {
       take: 50,
     })
 
-    return NextResponse.json({ posts: reportedPosts })
+    const posts = await signPostsForClient(reportedPosts)
+
+    return NextResponse.json({ posts })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to fetch moderation queue'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }
@@ -53,7 +57,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ queued: true, count: postIds.length })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to queue moderation'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }

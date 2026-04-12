@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F7F7F7' },
-    { media: '(prefers-color-scheme: dark)',  color: '#0A0A0A' },
+    { media: '(prefers-color-scheme: light)', color: '#050608' },
+    { media: '(prefers-color-scheme: dark)',  color: '#050608' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -26,11 +26,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js',{scope:'/'}));}`,
-          }}
-        />
+        {process.env.NODE_ENV === 'production' ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js',{scope:'/'}));}`,
+            }}
+          />
+        ) : null}
       </body>
     </html>
   )

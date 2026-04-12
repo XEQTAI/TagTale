@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MapPin, Loader2 } from 'lucide-react'
+import { MapPin, Loader2, CircleCheck, CircleX } from 'lucide-react'
 
 export default function ScanPage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'scanning' | 'success' | 'error'>('scanning')
@@ -61,37 +61,37 @@ export default function ScanPage({ params }: { params: { id: string } }) {
   }, [params.id, router])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-600 to-pink-500 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-xl">
+    <div className="min-h-screen board-vignette flex items-center justify-center px-4">
+      <div className="board-panel rounded-2xl p-8 max-w-sm w-full text-center">
         {status === 'scanning' && (
           <>
-            <Loader2 className="mx-auto mb-4 text-brand-600 animate-spin" size={48} />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Scanning...</h2>
-            <p className="text-gray-500 text-sm">{message}</p>
+            <Loader2 className="mx-auto mb-4 text-ink animate-spin" size={48} />
+            <h2 className="text-xl font-bold text-ink mb-2">Scanning...</h2>
+            <p className="text-ink-2 text-sm">{message}</p>
           </>
         )}
         {status === 'success' && (
           <>
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Scanned!</h2>
-            <p className="text-gray-500 text-sm">{message}</p>
+            <CircleCheck size={48} className="mx-auto mb-4 text-emerald-300" />
+            <h2 className="text-xl font-bold text-ink mb-2">Scanned!</h2>
+            <p className="text-ink-2 text-sm">{message}</p>
           </>
         )}
         {status === 'error' && (
           <>
-            <div className="text-5xl mb-4">❌</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Scan failed</h2>
-            <p className="text-gray-500 text-sm mb-6">{message}</p>
+            <CircleX size={48} className="mx-auto mb-4 text-rose-300" />
+            <h2 className="text-xl font-bold text-ink mb-2">Scan failed</h2>
+            <p className="text-ink-2 text-sm mb-6">{message}</p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-brand-600 text-white font-semibold py-3 rounded-xl hover:bg-brand-700 transition-colors"
+              className="btn-primary w-full py-3 rounded-xl"
             >
               Try again
             </button>
           </>
         )}
         {status !== 'error' && (
-          <div className="mt-4 flex items-center justify-center gap-1 text-xs text-gray-400">
+          <div className="mt-4 flex items-center justify-center gap-1 text-xs text-ink-3">
             <MapPin size={12} />
             <span>Location used to map your scan</span>
           </div>

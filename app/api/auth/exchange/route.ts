@@ -6,9 +6,19 @@ import { generateUsername, generateAvatarUrl } from '@/lib/utils'
 import { generateAiUsername } from '@/lib/ai'
 import { trackEvent, log } from '@/lib/analytics'
 import { sendWelcomeEmail } from '@/lib/email'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { maybeDevDetail } from '@/lib/dev-error-detail'
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(`auth:exchange:${getClientIp(req)}`, 30, 60_000)
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
+      )
+    }
+
     const { accessToken } = await req.json()
     if (!accessToken) {
       return NextResponse.json({ error: 'Missing token' }, { status: 400 })
@@ -68,6 +78,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (err) {
     await log('error', 'Auth exchange failed', { error: String(err) }).catch(() => {})
-    return NextResponse.json({ error: 'Server error', detail: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Server error', ...maybeDevDetail(err) }, { status: 500 })
   }
 }

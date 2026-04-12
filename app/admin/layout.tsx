@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
+import { tryDevAutoLoginAsAdmin } from '@/lib/dev-auto-login'
 import Link from 'next/link'
 import { BarChart2, Map, Shield, FileText, Users, Megaphone, Calendar, TrendingUp, ArrowLeft } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
@@ -17,25 +18,37 @@ const navItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession()
+  let session = await getSession()
+
+  if (!session && process.env.NODE_ENV === 'development') {
+    const dev = await tryDevAutoLoginAsAdmin()
+    if (dev.ok) {
+      session = { userId: dev.userId, user: dev.user }
+    } else if (dev.reason === 'db_unavailable') {
+      redirect('/login')
+    }
+  }
+
   if (!session?.user.isAdmin) redirect('/feed')
 
   return (
     <div className="min-h-screen bg-page">
-      <header className="bg-surface border-b border-edge px-4 py-3 flex items-center gap-3">
-        <Link href="/feed" className="text-ink-3 hover:text-ink transition-colors">
-          <ArrowLeft size={20} />
-        </Link>
-        <Logo size="md" />
-        <span className="ml-2 text-xs border border-edge-2 text-ink-2 px-2 py-0.5 rounded-full font-medium">
-          Admin
-        </span>
-        <ThemeToggle className="ml-auto" />
+      <header className="bg-surface/90 backdrop-blur-xl border-b border-edge">
+        <div className="tt-shell py-3 flex items-center gap-3">
+          <Link href="/feed" className="text-ink-3 hover:text-ink transition-colors">
+            <ArrowLeft size={20} />
+          </Link>
+          <Logo size="md" />
+          <span className="ml-2 text-xs border border-edge-2 text-ink-2 px-2 py-0.5 rounded-full font-medium">
+            Admin
+          </span>
+          <ThemeToggle className="ml-auto" />
+        </div>
       </header>
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-52 shrink-0 min-h-[calc(100vh-49px)] bg-surface border-r border-edge hidden md:block">
+        <aside className="w-56 shrink-0 min-h-[calc(100vh-57px)] bg-surface/88 border-r border-edge hidden md:block backdrop-blur-xl">
           <nav className="p-3 space-y-0.5">
             {navItems.map(({ href, Icon, label }) => (
               <Link
@@ -51,7 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </aside>
 
         {/* Mobile nav strip */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-edge flex overflow-x-auto gap-1 px-2 py-1.5">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/92 border-t border-edge flex overflow-x-auto gap-1 px-2 py-1.5 backdrop-blur-xl">
           {navItems.map(({ href, Icon, label }) => (
             <Link
               key={href}

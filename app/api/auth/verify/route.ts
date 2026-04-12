@@ -5,8 +5,14 @@ import { sendWelcomeEmail } from '@/lib/email'
 import { generateUsername, generateAvatarUrl } from '@/lib/utils'
 import { generateAiUsername } from '@/lib/ai'
 import { trackEvent, log } from '@/lib/analytics'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
+  const rl = checkRateLimit(`auth:verify:${getClientIp(req)}`, 40, 60_000)
+  if (!rl.ok) {
+    return NextResponse.redirect(new URL('/auth/login?error=ratelimit', req.url))
+  }
+
   const token = req.nextUrl.searchParams.get('token')
 
   if (!token) {

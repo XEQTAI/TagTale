@@ -30,7 +30,7 @@ export default function CameraCapture({ onCapture, currentUrl, label = 'Object p
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       if (!res.ok) throw new Error('Upload failed')
       const data = await res.json()
-      onCapture(data.url)
+      onCapture(data.previewUrl || data.url)
     } catch {
       setError('Upload failed — tap to retry')
       setPreview(null)
@@ -82,7 +82,7 @@ export default function CameraCapture({ onCapture, currentUrl, label = 'Object p
         </button>
       )}
 
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-xs text-rose-300 mt-1">{error}</p>}
 
       {/* On mobile: capture="environment" opens rear camera directly */}
       <input

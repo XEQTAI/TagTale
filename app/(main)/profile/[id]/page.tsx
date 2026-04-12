@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import { LogOut, UserRound } from 'lucide-react'
 
 interface Profile {
   id: string
@@ -31,19 +31,22 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-center">
+      <div className="card p-6 text-center">
         <img
           src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${params.id}`}
           alt="Avatar"
-          className="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-brand-100"
+          className="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-edge-2"
         />
-        <p className="text-gray-500 text-sm">User profile</p>
+        <div className="flex items-center justify-center gap-2">
+          <UserRound size={14} className="text-ink-3" />
+          <p className="text-ink-2 text-sm">User profile</p>
+        </div>
       </div>
 
       <div className="mt-6 space-y-3">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 font-medium py-3 rounded-xl hover:bg-red-100 transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-rose-950/40 text-rose-200 border border-rose-900/50 font-medium py-3 rounded-xl hover:bg-rose-950/60 transition-colors"
         >
           <LogOut size={18} />
           Sign out

@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "postinstall": "prisma generate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "bootstrap": "docker compose up -d && npx prisma db push && npm run db:seed",
+    "dev": "next dev -p 3333",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,6 +20,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
+    "@aws-sdk/client-s3": "^3.1029.0",
+    "@aws-sdk/s3-request-presigner": "^3.1029.0",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",

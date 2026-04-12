@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession, requireAdmin } from '@/lib/auth'
 import { trackEvent } from '@/lib/analytics'
+import { httpStatusFromAuthError } from '@/lib/http-status'
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -23,7 +24,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ deleted: true })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete post'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }
@@ -51,7 +52,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json(post)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to update post'
-    const status = message === 'Unauthorized' || message === 'Forbidden' ? 403 : 500
+    const status = httpStatusFromAuthError(message)
     return NextResponse.json({ error: message }, { status })
   }
 }

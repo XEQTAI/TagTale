@@ -41,11 +41,11 @@ export default function AnalyticsDashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+        <h1 className="text-2xl font-bold text-ink tracking-wide uppercase">Analytics</h1>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="input w-auto"
         >
           <option value={7}>Last 7 days</option>
           <option value={30}>Last 30 days</option>
@@ -55,20 +55,20 @@ export default function AnalyticsDashboard() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="animate-spin text-brand-400" size={32} />
+          <Loader2 className="animate-spin text-ink-2" size={32} />
         </div>
       ) : data ? (
         <div className="space-y-6">
           {/* Stat cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Users', value: data.totals.users, color: 'text-blue-600' },
-              { label: 'Objects', value: data.totals.objects, color: 'text-green-600' },
-              { label: 'Scans', value: data.totals.scans, color: 'text-brand-600' },
-              { label: 'Posts', value: data.totals.posts, color: 'text-pink-600' },
+              { label: 'Users', value: data.totals.users, color: 'text-ink' },
+              { label: 'Objects', value: data.totals.objects, color: 'text-ink' },
+              { label: 'Scans', value: data.totals.scans, color: 'text-ink' },
+              { label: 'Posts', value: data.totals.posts, color: 'text-ink' },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                <p className="text-sm text-gray-500">{stat.label}</p>
+              <div key={stat.label} className="card p-5">
+                <p className="text-sm text-ink-3">{stat.label}</p>
                 <p className={`text-3xl font-bold mt-1 ${stat.color}`}>
                   {stat.value.toLocaleString()}
                 </p>
@@ -77,35 +77,35 @@ export default function AnalyticsDashboard() {
           </div>
 
           {/* Events by day chart */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-4">Events over time</h2>
+          <div className="card p-5">
+            <h2 className="font-semibold text-ink mb-4">Events over time</h2>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={data.eventsByDay}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--edge)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ink-3)' }} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--ink-3)' }} />
                 <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="count" stroke="#8ca4ff" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           {/* Top objects */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-4">Top objects by scans</h2>
+          <div className="card p-5">
+            <h2 className="font-semibold text-ink mb-4">Top objects by scans</h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={data.topObjects} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--edge)" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--ink-3)' }} />
+                <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11, fill: 'var(--ink-2)' }} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#7c3aed" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill="#8ca4ff" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       ) : (
-        <p className="text-gray-400">Failed to load analytics</p>
+        <p className="text-ink-3">Failed to load analytics</p>
       )}
     </div>
   )

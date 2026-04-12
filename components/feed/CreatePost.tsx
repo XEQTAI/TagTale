@@ -10,7 +10,11 @@ interface CreatePostProps {
 
 export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
   const [content, setContent] = useState('')
+  /** Public/legacy URL (local `/uploads/...` or full http URL) */
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
+  const [mediaStorageKey, setMediaStorageKey] = useState<string | null>(null)
+  const [mediaStorageBackend, setMediaStorageBackend] = useState<'r2' | 'supabase' | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -29,7 +33,17 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       if (!res.ok) throw new Error('Upload failed')
       const data = await res.json()
-      setMediaUrl(data.url)
+      if (data.storageKey && data.previewUrl) {
+        setMediaStorageKey(data.storageKey)
+        setPreviewUrl(data.previewUrl)
+        setMediaUrl(null)
+        setMediaStorageBackend(data.storageBackend ?? 'supabase')
+      } else if (data.url) {
+        setMediaUrl(data.url)
+        setPreviewUrl(data.url)
+        setMediaStorageKey(null)
+        setMediaStorageBackend(null)
+      }
       setMediaType(data.mediaType)
     } catch {
       setError('Upload failed. Please try again.')
@@ -40,7 +54,10 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!content.trim() && !mediaUrl) return
+    if (!content.trim() && !mediaUrl && !mediaStorageKey) return
+
+    const backendBody =
+      mediaStorageKey && mediaStorageBackend ? { mediaStorageBackend } : {}
 
     setSubmitting(true)
     setError('')
@@ -48,7 +65,14 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectId, content: content.trim() || undefined, mediaUrl, mediaType }),
+        body: JSON.stringify({
+          objectId,
+          content: content.trim() || undefined,
+          mediaUrl: mediaUrl ?? undefined,
+          mediaStorageKey: mediaStorageKey ?? undefined,
+          ...backendBody,
+          mediaType,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -57,6 +81,9 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
       }
       setContent('')
       setMediaUrl(null)
+      setMediaStorageKey(null)
+      setMediaStorageBackend(null)
+      setPreviewUrl(null)
       setMediaType(null)
       onCreated(data)
     } finally {
@@ -72,34 +99,40 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
         placeholder="Share your experience with this object..."
         maxLength={2000}
         rows={3}
-        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
+        className="input px-3 py-2 text-sm resize-none"
       />
 
-      {mediaUrl && (
+      {previewUrl && (
         <div className="relative inline-block">
           {mediaType === 'video' ? (
-            <video src={mediaUrl} className="h-24 rounded-lg" />
+            <video src={previewUrl} className="h-24 rounded-lg" />
           ) : (
-            <img src={mediaUrl} alt="Upload preview" className="h-24 rounded-lg object-cover" />
+            <img src={previewUrl} alt="Upload preview" className="h-24 rounded-lg object-cover" />
           )}
           <button
             type="button"
-            onClick={() => { setMediaUrl(null); setMediaType(null) }}
-            className="absolute -top-2 -right-2 bg-gray-700 text-white rounded-full p-0.5"
+            onClick={() => {
+              setMediaUrl(null)
+              setMediaStorageKey(null)
+              setMediaStorageBackend(null)
+              setPreviewUrl(null)
+              setMediaType(null)
+            }}
+            className="absolute -top-2 -right-2 bg-surface-2 text-ink rounded-full p-0.5 border border-edge"
           >
             <X size={14} />
           </button>
         </div>
       )}
 
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <p className="text-rose-300 text-xs">{error}</p>}
 
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink transition-colors"
         >
           <Image size={18} />
           <span>{uploading ? 'Uploading...' : 'Photo/Video'}</span>
@@ -113,8 +146,8 @@ export default function CreatePost({ objectId, onCreated }: CreatePostProps) {
         />
         <button
           type="submit"
-          disabled={submitting || uploading || (!content.trim() && !mediaUrl)}
-          className="flex items-center gap-1.5 bg-brand-600 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          disabled={submitting || uploading || (!content.trim() && !mediaUrl && !mediaStorageKey)}
+          className="btn-primary flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send size={15} />
           {submitting ? 'Posting...' : 'Post'}

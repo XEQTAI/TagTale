@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { signPostsForClient } from '@/lib/post-media'
 
 const AD_FREQUENCY = 5 // inject an ad every N posts
 
@@ -44,6 +45,8 @@ export async function GET(req: NextRequest) {
     const hasMore = posts.length > limit
     const items = hasMore ? posts.slice(0, -1) : posts
 
+    const signedItems = await signPostsForClient(items)
+
     // Fetch active ads to inject
     const ads = await prisma.ad.findMany({
       where: { isActive: true },
@@ -59,10 +62,10 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const formattedPosts = items.map((p, i) => ({
+    const formattedPosts = signedItems.map((p, i) => ({
       type: 'post' as const,
       ...p,
-      likedByMe: (p.likes as { userId: string }[]).length > 0,
+      likedByMe: (items[i].likes as { userId: string }[]).length > 0,
       likes: undefined,
       // Inject ad after every AD_FREQUENCY posts
       ad: (i + 1) % AD_FREQUENCY === 0 ? ads[Math.floor(i / AD_FREQUENCY)] ?? null : null,

@@ -19,9 +19,9 @@ const levelIcon = {
 }
 
 const levelBg = {
-  info: 'bg-blue-50',
-  warn: 'bg-yellow-50',
-  error: 'bg-red-50',
+  info: 'bg-surface',
+  warn: 'bg-surface',
+  error: 'bg-surface',
 }
 
 export default function LogsPage() {
@@ -53,11 +53,11 @@ export default function LogsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">System Logs</h1>
+        <h1 className="text-2xl font-bold text-ink tracking-wide uppercase">System Logs</h1>
         <select
           value={level}
           onChange={(e) => setLevel(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="input w-auto"
         >
           <option value="">All levels</option>
           <option value="info">Info</option>
@@ -68,26 +68,26 @@ export default function LogsPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="animate-spin text-brand-400" size={32} />
+          <Loader2 className="animate-spin text-ink-2" size={32} />
         </div>
       ) : logs.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">No logs found</div>
+        <div className="text-center py-16 text-ink-3">No logs found</div>
       ) : (
         <div className="space-y-2 font-mono text-xs">
           {logs.map((log) => (
             <div
               key={log.id}
-              className={`rounded-xl p-3 ${levelBg[log.level as keyof typeof levelBg] || 'bg-gray-50'}`}
+              className={`card rounded-xl p-3 ${levelBg[log.level as keyof typeof levelBg] || 'bg-surface'}`}
             >
               <div className="flex items-center gap-2 mb-1">
                 {levelIcon[log.level as keyof typeof levelIcon]}
-                <span className="font-semibold text-gray-700">{log.message}</span>
-                <span className="ml-auto text-gray-400">
+                <span className="font-semibold text-ink">{log.message}</span>
+                <span className="ml-auto text-ink-3">
                   {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
                 </span>
               </div>
               {log.meta && (
-                <pre className="text-gray-500 overflow-x-auto text-xs mt-1">
+                <pre className="text-ink-2 overflow-x-auto text-xs mt-1">
                   {JSON.stringify(log.meta, null, 2)}
                 </pre>
               )}
@@ -96,7 +96,7 @@ export default function LogsPage() {
           {hasMore && (
             <button
               onClick={() => fetchLogs(cursor)}
-              className="w-full py-3 text-brand-600 hover:text-brand-700 font-medium text-sm"
+              className="w-full py-3 text-ink-2 hover:text-ink font-medium text-sm"
             >
               Load more
             </button>

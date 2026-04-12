@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { z } from 'zod'
 import { createSupabaseClient } from '@/lib/supabase'
+import Logo from '@/components/ui/Logo'
+import BrandMark from '@/components/ui/BrandMark'
+import { MailCheck } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -43,11 +46,11 @@ export default function LoginPage() {
 
   if (submitted) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-brand-600 to-pink-500 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-xl">
-          <div className="text-5xl mb-4">📬</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
-          <p className="text-gray-500 text-sm">
+      <main className="min-h-screen board-vignette flex items-center justify-center px-4 py-10">
+        <div className="board-panel rounded-2xl p-8 max-w-sm w-full text-center">
+          <MailCheck size={42} className="mx-auto mb-4 text-ink-2" />
+          <h2 className="text-2xl font-bold text-ink mb-2">Check your email</h2>
+          <p className="text-ink-2 text-sm">
             We sent a magic link to <strong>{email}</strong>.<br />
             Click it to sign in — expires in 15 minutes.
           </p>
@@ -57,17 +60,18 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-brand-600 to-pink-500 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-xl">
+    <main className="min-h-screen board-vignette flex items-center justify-center px-4 py-10">
+      <div className="board-panel rounded-2xl p-8 max-w-sm w-full">
         <div className="text-center mb-6">
-          <div className="text-4xl mb-3">🏷️</div>
-          <h1 className="text-2xl font-bold text-gray-900">Sign in to TagTale</h1>
-          <p className="text-gray-500 text-sm mt-1">We&apos;ll email you a magic link</p>
+          <BrandMark size={44} className="mx-auto mb-3 text-ink" />
+          <Logo size="lg" className="inline-block mb-4" />
+          <h1 className="text-2xl font-bold text-ink">Sign in to TagTale</h1>
+          <p className="text-ink-2 text-sm mt-1">We&apos;ll email you a magic link</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-ink-2 mb-1">
               Email address
             </label>
             <input
@@ -78,21 +82,36 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="input px-4 py-3 text-sm"
               disabled={loading}
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-rose-300 text-sm">{error}</p>}
 
           <button
             type="submit"
             disabled={loading || !email}
-            className="w-full bg-brand-600 text-white font-semibold py-3 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary w-full py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Sending...' : 'Send magic link'}
           </button>
         </form>
+
+        {process.env.NODE_ENV === 'development' ? (
+          <p className="mt-6 text-center text-xs text-ink-3 leading-relaxed border-t border-edge pt-5">
+            <strong className="text-ink-2 font-medium">Local dev:</strong> Magic links need Supabase in{' '}
+            <code className="text-[11px] text-ink-2">.env</code>. To skip email login, open{' '}
+            <a href="/feed" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">
+              /feed
+            </a>{' '}
+            or{' '}
+            <a href="/admin" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">
+              /admin
+            </a>{' '}
+            — you&apos;ll be signed in as the seeded admin if the database is running.
+          </p>
+        ) : null}
       </div>
     </main>
   )

@@ -9,16 +9,15 @@ interface ThemeCtx {
   toggle: () => void
 }
 
-const Ctx = createContext<ThemeCtx>({ theme: 'light', toggle: () => {} })
+const Ctx = createContext<ThemeCtx>({ theme: 'dark', toggle: () => {} })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('tt-theme') as Theme | null
-    const sys   = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    const t     = saved ?? sys
+    const t = saved ?? 'dark'
     setTheme(t)
     document.documentElement.classList.toggle('dark', t === 'dark')
     setMounted(true)

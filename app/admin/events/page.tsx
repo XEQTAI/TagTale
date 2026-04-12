@@ -55,7 +55,7 @@ export default function EventsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Events &amp; Projects</h1>
+          <h1 className="text-2xl font-bold text-ink tracking-wide uppercase">Events &amp; Projects</h1>
           <p className="text-sm text-ink-3 mt-0.5">Group objects by event, campaign, or journey</p>
         </div>
         <button onClick={() => setShowNew(true)} className="btn-primary flex items-center gap-1.5 text-sm">

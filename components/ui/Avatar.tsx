@@ -14,7 +14,7 @@ export default function Avatar({ username, avatarUrl, size = 40, className = '' 
       alt={username}
       width={size}
       height={size}
-      className={`rounded-full bg-gray-100 ${className}`}
+      className={`rounded-full bg-surface-2 border border-edge ${className}`}
       style={{ width: size, height: size }}
     />
   )

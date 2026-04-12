@@ -6,13 +6,32 @@ import { generateAiUsername } from '@/lib/ai'
 import { log } from '@/lib/analytics'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { maybeDevDetail } from '@/lib/dev-error-detail'
 
 const schema = z.object({ email: z.string().email() })
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req)
+    const rlIp = checkRateLimit(`auth:magic:ip:${ip}`, 5, 15 * 60_000)
+    if (!rlIp.ok) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': String(rlIp.retryAfterSec) } }
+      )
+    }
+
     const body = await req.json()
     const { email } = schema.parse(body)
+
+    const rlEmail = checkRateLimit(`auth:magic:email:${email.toLowerCase()}`, 3, 60 * 60_000)
+    if (!rlEmail.ok) {
+      return NextResponse.json(
+        { error: 'Too many requests for this email' },
+        { status: 429, headers: { 'Retry-After': String(rlEmail.retryAfterSec) } }
+      )
+    }
 
     // Delete any existing unused magic links for this email
     await prisma.magicLink.deleteMany({
@@ -53,6 +72,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
     await log('error', 'Magic link send failed', { error: String(err) }).catch(() => {})
-    return NextResponse.json({ error: 'Failed to send magic link', detail: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to send magic link', ...maybeDevDetail(err) }, { status: 500 })
   }
 }

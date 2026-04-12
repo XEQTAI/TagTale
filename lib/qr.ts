@@ -1,7 +1,7 @@
 import QRCode from 'qrcode'
 import { generateQrScanUrl } from './utils'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3333'
 
 export interface QrCodeOptions {
   width?: number

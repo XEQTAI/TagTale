@@ -53,11 +53,11 @@ export default function ModerationPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Moderation Queue</h1>
+        <h1 className="text-2xl font-bold text-ink tracking-wide uppercase">Moderation Queue</h1>
         {posts.length > 0 && (
           <button
             onClick={handleDeepModerate}
-            className="flex items-center gap-2 bg-brand-600 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-brand-700 transition-colors"
+            className="btn-primary flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
           >
             <Shield size={16} />
             AI Deep Moderate All
@@ -67,40 +67,40 @@ export default function ModerationPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="animate-spin text-brand-400" size={32} />
+          <Loader2 className="animate-spin text-ink-2" size={32} />
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-ink-3">
           <Shield size={48} className="mx-auto mb-3 opacity-40" />
           <p>No reported posts</p>
         </div>
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div key={post.id} className="card p-5">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
-                  <span className="font-medium text-sm text-gray-900">@{post.user.username}</span>
-                  <span className="text-gray-400 mx-2 text-xs">on</span>
-                  <span className="text-sm text-gray-600">{post.object.name}</span>
+                  <span className="font-medium text-sm text-ink">@{post.user.username}</span>
+                  <span className="text-ink-3 mx-2 text-xs">on</span>
+                  <span className="text-sm text-ink-2">{post.object.name}</span>
                 </div>
-                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                <span className="text-xs bg-rose-950/40 text-rose-200 px-2 py-1 rounded-full border border-rose-900/50">
                   {post._count.reports} reports
                 </span>
               </div>
 
               {post.content && (
-                <p className="text-sm text-gray-700 mb-3 bg-gray-50 rounded-lg p-3">{post.content}</p>
+                <p className="text-sm text-ink-2 mb-3 bg-surface-2 rounded-lg p-3 border border-edge">{post.content}</p>
               )}
               {post.mediaUrl && (
                 <img src={post.mediaUrl} alt="" className="h-32 rounded-lg object-cover mb-3" />
               )}
 
               <div className="mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Report reasons:</p>
+                <p className="text-xs font-medium text-ink-3 mb-1">Report reasons:</p>
                 <div className="flex flex-wrap gap-1">
                   {post.reports.map((r, i) => (
-                    <span key={i} className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full">
+                    <span key={i} className="text-xs bg-surface-2 text-ink-2 border border-edge px-2 py-0.5 rounded-full">
                       {r.reason}
                     </span>
                   ))}

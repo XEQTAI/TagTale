@@ -83,17 +83,17 @@ export default function FeedList({ objectId, userId }: FeedListProps) {
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="animate-spin text-brand-400" size={32} />
+        <Loader2 className="animate-spin text-ink-2" size={32} />
       </div>
     )
   }
 
   if (error === 'Scan required to view feed' || error === 'Authentication required') {
     return (
-      <div className="text-center py-16 px-4">
-        <div className="text-4xl mb-3">📷</div>
-        <h3 className="font-semibold text-gray-900 mb-1">Scan to unlock</h3>
-        <p className="text-sm text-gray-500">
+      <div className="text-center py-16 px-4 card">
+        <Rss size={28} className="mx-auto mb-3 text-ink-3" />
+        <h3 className="font-semibold text-ink mb-1">Scan to unlock</h3>
+        <p className="text-sm text-ink-2">
           Scan this object&apos;s QR code to see the community feed.
         </p>
       </div>
@@ -102,7 +102,7 @@ export default function FeedList({ objectId, userId }: FeedListProps) {
 
   if (error) {
     return (
-      <div className="text-center py-16 text-gray-400">
+      <div className="text-center py-16 text-ink-3">
         <p>{error}</p>
       </div>
     )
@@ -111,13 +111,13 @@ export default function FeedList({ objectId, userId }: FeedListProps) {
   return (
     <div>
       {objectId && canPost && (
-        <div className="px-4 py-3 bg-white border-b border-gray-100">
+        <div className="px-4 py-3 card mb-3">
           <CreatePost objectId={objectId} onCreated={handlePostCreated} />
         </div>
       )}
 
       {posts.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-ink-3">
           <Rss size={48} className="mx-auto mb-3 opacity-40" />
           <p className="font-medium">No posts yet</p>
           {canPost && (
@@ -131,11 +131,11 @@ export default function FeedList({ objectId, userId }: FeedListProps) {
           hasMore={hasMore}
           loader={
             <div className="flex justify-center py-4">
-              <Loader2 className="animate-spin text-brand-300" size={24} />
+              <Loader2 className="animate-spin text-ink-3" size={24} />
             </div>
           }
           endMessage={
-            <p className="text-center text-xs text-gray-400 py-6">You&apos;ve seen everything</p>
+            <p className="text-center text-xs text-ink-3 py-6">You&apos;ve seen everything</p>
           }
         >
           {posts.map((post) => (
