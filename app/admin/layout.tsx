@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { tryDevAutoLoginAsAdmin } from '@/lib/dev-auto-login'
 import Link from 'next/link'
 import { BarChart2, Map, Shield, FileText, Users, Megaphone, Calendar, TrendingUp, ArrowLeft } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
@@ -18,18 +17,10 @@ const navItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  let session = await getSession()
+  const session = await getSession()
 
-  if (!session && process.env.NODE_ENV === 'development') {
-    const dev = await tryDevAutoLoginAsAdmin()
-    if (dev.ok) {
-      session = { userId: dev.userId, user: dev.user }
-    } else if (dev.reason === 'db_unavailable') {
-      redirect('/login')
-    }
-  }
-
-  if (!session?.user.isAdmin) redirect('/feed')
+  if (!session) redirect('/login')
+  if (!session.user.isAdmin) redirect('/feed')
 
   return (
     <div className="min-h-screen bg-page">

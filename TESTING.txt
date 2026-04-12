@@ -1,35 +1,19 @@
 TagTale — quick local test
 ==========================
 
-1) Prerequisites
-   - Node.js (you already use npm)
-   - Docker Desktop (recommended) OR PostgreSQL 16+ listening on localhost:5432
+1) Prerequisites: Node.js, .env with DATABASE_URL + JWT_SECRET + RESEND (or re_dev_placeholder for local).
 
-2) Environment
-   - A file named `.env` is in this folder with local DATABASE_URL and JWT_SECRET (gitignored).
-   - Add Cloudflare R2 or Supabase keys to `.env` only when you want cloud uploads / email login.
+2) Verify database before anything else:
+      npm run db:check
 
-3) Database + demo data (pick one)
-
-   A) Docker (easiest if Docker Desktop is installed):
+3) Schema + seed:
       npm run bootstrap
-      OR:  powershell -ExecutionPolicy Bypass -File scripts/bootstrap.ps1
+   OR:  npx prisma migrate deploy
+        npm run db:seed
 
-   B) Your own Postgres: create database `tagtale`, user/password matching DATABASE_URL in `.env`, then:
-      npx prisma db push
-      npm run db:seed
-
-4) Run the app
+4) Run app:
       npm run dev
+   Open http://localhost:3333/login — email OTP sign-in.
 
-5) In the browser
-   - http://localhost:3333
-   - In development, the app auto-signs you in as the seeded admin (see app/(main)/layout.tsx).
-   - Seeded admin email: admin@tagtale.app
-
-6) Uploads without R2/Supabase
-   - In dev, files go to public/uploads/ automatically.
-
-7) Production build check (optional)
+5) Production build (optional):
       npm run build
-   (Requires JWT_SECRET in .env — already set in the provided .env)

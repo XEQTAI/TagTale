@@ -8,6 +8,8 @@ import Logo from '@/components/ui/Logo'
 import BrandMark from '@/components/ui/BrandMark'
 import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const errorMessages: Record<string, string> = {
   expired: 'This sign-in link has expired. Request a new code below.',
   invalid: 'This sign-in link is invalid.',
@@ -16,9 +18,6 @@ const errorMessages: Record<string, string> = {
   ratelimit: 'Too many attempts. Wait a bit and try again.',
 }
 
-const previewEnabled = process.env.NEXT_PUBLIC_ENABLE_PREVIEW_LOGIN === 'true'
-
-/** Matches landing “Get started” — light pill on dark canvas */
 function LandingPrimaryButton({
   children,
   disabled,
@@ -45,37 +44,9 @@ function LoginForm() {
   const [email, setEmail] = useState('')
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [code, setCode] = useState('')
-  const [devCode, setDevCode] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [verifyLoading, setVerifyLoading] = useState(false)
-  const [previewSecret, setPreviewSecret] = useState('')
-  const [previewLoading, setPreviewLoading] = useState(false)
   const [error, setError] = useState(urlError && errorMessages[urlError] ? errorMessages[urlError] : '')
-
-  const previewLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    if (!previewSecret.trim()) return
-    setPreviewLoading(true)
-    try {
-      const res = await fetch('/api/auth/preview-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ secret: previewSecret }),
-      })
-      const data = (await res.json().catch(() => ({}))) as { error?: string }
-      if (!res.ok) {
-        setError(data.error || 'Sign-in failed.')
-        return
-      }
-      window.location.href = '/admin'
-    } catch {
-      setError('Network error.')
-    } finally {
-      setPreviewLoading(false)
-    }
-  }
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,12 +66,11 @@ function LoginForm() {
         credentials: 'include',
         body: JSON.stringify({ email }),
       })
-      const data = (await res.json().catch(() => ({}))) as { error?: string; devCode?: string }
+      const data = (await res.json().catch(() => ({}))) as { error?: string }
       if (!res.ok) {
         setError(data.error || 'Could not send a code. Try again.')
         return
       }
-      setDevCode(typeof data.devCode === 'string' ? data.devCode : null)
       setStep('code')
     } catch {
       setError('Network error. Please try again.')
@@ -148,7 +118,6 @@ function LoginForm() {
   const backToEmail = () => {
     setStep('email')
     setCode('')
-    setDevCode(null)
     setError('')
   }
 
@@ -231,12 +200,12 @@ function LoginForm() {
                   Use a different email
                 </button>
               </form>
-
-              {devCode ? (
-                <div className="mt-8 rounded-xl border border-edge bg-surface-2/80 p-4 text-left">
-                  <p className="text-xs font-medium text-ink-2 mb-2">Development — code (no email)</p>
-                  <p className="text-lg font-mono font-semibold tracking-[0.25em] text-brand-300">{devCode}</p>
-                </div>
+              {isDev ? (
+                <p className="mt-6 text-center text-[11px] text-ink-3 leading-relaxed">
+                  Local dev: if <code className="text-[10px]">RESEND_API_KEY=re_dev_placeholder</code> in{' '}
+                  <code className="text-[10px]">.env</code>, the code is printed in the terminal running{' '}
+                  <code className="text-[10px]">npm run dev</code>.
+                </p>
               ) : null}
             </AuthCard>
           </div>
@@ -304,29 +273,6 @@ function LoginForm() {
                 {loading ? 'Sending…' : 'Send code'}
               </LandingPrimaryButton>
             </form>
-
-            {previewEnabled ? (
-              <form onSubmit={previewLogin} className="mt-6 border-t border-edge pt-5 space-y-3">
-                <p className="text-xs text-ink-3 text-center leading-relaxed">
-                  Staging: enter the preview secret from your host environment.
-                </p>
-                <input
-                  type="password"
-                  autoComplete="off"
-                  value={previewSecret}
-                  onChange={(e) => setPreviewSecret(e.target.value)}
-                  placeholder="Preview secret"
-                  className="input px-4 py-3 text-sm w-full"
-                />
-                <button
-                  type="submit"
-                  disabled={previewLoading || !previewSecret.trim()}
-                  className="btn-ghost w-full py-3 rounded-xl text-sm disabled:opacity-50"
-                >
-                  {previewLoading ? 'Signing in…' : 'Sign in with preview secret'}
-                </button>
-              </form>
-            ) : null}
           </AuthCard>
         </div>
       </div>

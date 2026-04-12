@@ -17,8 +17,25 @@ function isDev() {
 
 let cachedSignInCodeTemplate: string | null = null
 
+/** Used when `emails/sign-in-code.html` is missing (e.g. some serverless bundles). Same placeholders. */
+const SIGN_IN_CODE_HTML_FALLBACK = `<!DOCTYPE html>
+<html><body style="margin:0;font-family:system-ui,sans-serif;background:#f4f4f5;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px;">
+<table width="600" style="max-width:600px;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+<tr><td style="height:5px;background:linear-gradient(90deg,#365bd0,#6a8fff,#99b3ff);border-radius:16px 16px 0 0;"></td></tr>
+<tr><td style="padding:40px;">
+<p style="text-align:center;font-size:28px;font-weight:800;color:#17264f;margin:0;">TagTale</p>
+<p style="text-align:center;color:#6b7280;font-size:14px;margin:8px 0 24px;">Social stories for every object</p>
+<h1 style="font-size:20px;color:#111827;margin:0 0 12px;">Your sign-in code</h1>
+<p style="color:#374151;line-height:1.6;margin:0 0 24px;">Enter this code on the login page. Expires in 15 minutes.</p>
+<p style="text-align:center;font-size:32px;font-weight:800;letter-spacing:0.35em;font-family:ui-monospace,monospace;color:#111827;margin:0 0 24px;">{{CODE}}</p>
+<p style="text-align:center;"><a href="{{LOGIN_URL}}" style="display:inline-block;background:#4b74f4;color:#fff;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:600;">Open TagTale</a></p>
+<p style="color:#9ca3af;font-size:13px;text-align:center;margin-top:24px;">If you didn&apos;t request this, ignore this email.</p>
+<p style="color:#9ca3af;font-size:12px;text-align:center;"><a href="{{BASE_URL}}" style="color:#6a8fff;">{{BASE_URL_DISPLAY}}</a></p>
+</td></tr></table></td></tr></table></body></html>`
+
 /**
- * Renders `emails/sign-in-code.html` (same template you can paste into Resend or other ESPs).
+ * Renders `emails/sign-in-code.html` when present; otherwise uses an inline fallback (serverless-safe).
  * Placeholders: {{CODE}}, {{LOGIN_URL}}, {{BASE_URL}}, {{BASE_URL_DISPLAY}}
  */
 export function renderSignInCodeEmailHtml(code: string): string {
@@ -32,8 +49,12 @@ export function renderSignInCodeEmailHtml(code: string): string {
   }
 
   if (!cachedSignInCodeTemplate) {
-    const filePath = path.join(process.cwd(), 'emails', 'sign-in-code.html')
-    cachedSignInCodeTemplate = readFileSync(filePath, 'utf8')
+    try {
+      const filePath = path.join(process.cwd(), 'emails', 'sign-in-code.html')
+      cachedSignInCodeTemplate = readFileSync(filePath, 'utf8')
+    } catch {
+      cachedSignInCodeTemplate = SIGN_IN_CODE_HTML_FALLBACK
+    }
   }
 
   const safeCode = code.replace(/[^\d]/g, '').slice(0, 12)
@@ -98,6 +119,12 @@ export async function sendEmailLoginCode(email: string, code: string): Promise<v
     console.log('\n📧 [DEV] Sign-in code for', email)
     console.log('👉', code, '\n')
     return
+  }
+
+  if (!process.env.RESEND_API_KEY?.trim()) {
+    throw new Error(
+      'RESEND_API_KEY is not set. Add it in your host environment (e.g. Netlify → Environment variables).'
+    )
   }
 
   const { error } = await getResend().emails.send({

@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/components/ui/ThemeProvider'
 import './globals.css'
 
+// Tab favicon: app/icon.svg. PWA / Apple touch: npm run icons -> public/icon-*.png
 export const metadata: Metadata = {
   title: 'TagTale — Stories travel with objects',
   description: 'Scan. Post. Follow the story of any physical object.',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'TagTale' },
   other: { 'mobile-web-app-capable': 'yes' },
-  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
+  icons: { apple: '/icon-192.png' },
 }
 
 export const viewport: Viewport = {

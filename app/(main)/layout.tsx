@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { tryDevAutoLoginAsAdmin } from '@/lib/dev-auto-login'
 import Link from 'next/link'
 import { Home, Search, User, Settings } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
@@ -8,17 +7,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle'
 import { MainBottomNav } from '@/components/main/MainBottomNav'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
-  let session = await getSession()
-
-  // Dev auto-login: sign in as the seed admin without needing email (requires Postgres)
-  if (!session && process.env.NODE_ENV === 'development') {
-    const dev = await tryDevAutoLoginAsAdmin()
-    if (dev.ok) {
-      session = { userId: dev.userId, user: dev.user }
-    } else if (dev.reason === 'db_unavailable' || dev.reason === 'no_admin') {
-      redirect('/login')
-    }
-  }
+  const session = await getSession()
 
   if (!session) redirect('/login')
 

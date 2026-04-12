@@ -69,20 +69,39 @@ export async function POST(req: NextRequest) {
 
     await log('info', 'Email sign-in code sent', { email })
 
-    const base = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3333'
-    const payload: { message: string; devCode?: string } = {
-      message: 'Sign-in code sent. Check your email.',
-    }
-    if (process.env.NODE_ENV === 'development') {
-      payload.devCode = code
-    }
-
-    return NextResponse.json(payload)
+    return NextResponse.json({ message: 'Sign-in code sent. Check your email.' })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
-    await log('error', 'Email code send failed', { error: String(err) }).catch(() => {})
+    const msg = String(err)
+    await log('error', 'Email code send failed', { error: msg }).catch(() => {})
+
+    if (msg.includes('RESEND_API_KEY')) {
+      return NextResponse.json(
+        {
+          error:
+            'Email delivery is not configured. Set RESEND_API_KEY (and EMAIL_FROM if needed) in your server environment.',
+        },
+        { status: 503 }
+      )
+    }
+
+    if (
+      msg.includes('Unknown arg `code`') ||
+      (msg.includes('column') && msg.includes('code')) ||
+      msg.includes('P2022')
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Database is missing the latest auth tables. On the server run: npx prisma migrate deploy (or prisma db push).',
+          ...maybeDevDetail(err),
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({ error: 'Failed to send sign-in code', ...maybeDevDetail(err) }, { status: 500 })
   }
 }

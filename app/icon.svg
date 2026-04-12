@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="TagTale">
+  <!-- BrandMark: dog tag + QR; sync with components/ui/BrandMark.tsx -->
+  <rect width="48" height="48" rx="11" fill="#050608"/>
+  <path
+    d="M24 5.5 L11.5 12.5 V38.5 C11.5 40.8 13.4 42.5 15.8 42.5 H32.2 C34.6 42.5 36.5 40.8 36.5 38.5 V12.5 L24 5.5 Z"
+    fill="none"
+    stroke="#f6f8fb"
+    stroke-width="1.54"
+    stroke-linejoin="round"
+  />
+  <circle cx="24" cy="10.5" r="2.5" fill="none" stroke="#f6f8fb" stroke-width="1.54"/>
+  <circle cx="24" cy="10.5" r="1.05" fill="#f6f8fb"/>
+  <g stroke="#f6f8fb" fill="none" stroke-width="1.15">
+    <rect x="14" y="16" width="7" height="7"/>
+    <rect x="15.5" y="17.5" width="4" height="4"/>
+    <rect x="27" y="16" width="7" height="7"/>
+    <rect x="28.5" y="17.5" width="4" height="4"/>
+    <rect x="14" y="29" width="7" height="7"/>
+    <rect x="15.5" y="30.5" width="4" height="4"/>
+  </g>
+  <g fill="#f6f8fb">
+    <rect x="17" y="19" width="1.4" height="1.4"/>
+    <rect x="30" y="19" width="1.4" height="1.4"/>
+    <rect x="17" y="32" width="1.4" height="1.4"/>
+    <rect x="25" y="29" width="1.5" height="1.5"/>
+    <rect x="27.5" y="29" width="1.5" height="1.5"/>
+    <rect x="30" y="29" width="1.5" height="1.5"/>
+    <rect x="32.5" y="29" width="1.5" height="1.5"/>
+    <rect x="25" y="31.5" width="1.5" height="1.5"/>
+    <rect x="28.5" y="31.5" width="1.5" height="1.5"/>
+    <rect x="32" y="31.5" width="1.5" height="1.5"/>
+    <rect x="25" y="34" width="1.5" height="1.5"/>
+    <rect x="28" y="34" width="1.5" height="1.5"/>
+    <rect x="31" y="34" width="1.5" height="1.5"/>
+    <rect x="34" y="34" width="1.5" height="1.5"/>
+    <rect x="25" y="36.5" width="1.5" height="1.5"/>
+    <rect x="28.5" y="36.5" width="1.5" height="1.5"/>
+    <rect x="32" y="36.5" width="1.5" height="1.5"/>
+  </g>
+</svg>

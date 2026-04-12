@@ -4,8 +4,8 @@
   "description": "Every object has a story. Scan to discover it.",
   "start_url": "/feed",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#7c3aed",
+  "background_color": "#050608",
+  "theme_color": "#050608",
   "orientation": "portrait",
   "icons": [
     {
