@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs'
+import path from 'path'
 import { Resend } from 'resend'
 
 function getResend() {
@@ -13,6 +15,36 @@ function isDev() {
   return process.env.NODE_ENV === 'development' || process.env.RESEND_API_KEY === 're_dev_placeholder'
 }
 
+let cachedSignInCodeTemplate: string | null = null
+
+/**
+ * Renders `emails/sign-in-code.html` (same template you can paste into Resend or other ESPs).
+ * Placeholders: {{CODE}}, {{LOGIN_URL}}, {{BASE_URL}}, {{BASE_URL_DISPLAY}}
+ */
+export function renderSignInCodeEmailHtml(code: string): string {
+  const base = BASE_URL.replace(/\/$/, '')
+  const loginUrl = `${base}/login`
+  let baseDisplay = base
+  try {
+    baseDisplay = new URL(base.startsWith('http') ? base : `https://${base}`).host
+  } catch {
+    // keep full URL for display
+  }
+
+  if (!cachedSignInCodeTemplate) {
+    const filePath = path.join(process.cwd(), 'emails', 'sign-in-code.html')
+    cachedSignInCodeTemplate = readFileSync(filePath, 'utf8')
+  }
+
+  const safeCode = code.replace(/[^\d]/g, '').slice(0, 12)
+
+  return cachedSignInCodeTemplate.replace(/\{\{CODE\}\}/g, safeCode)
+    .replace(/\{\{LOGIN_URL\}\}/g, loginUrl)
+    .replace(/\{\{BASE_URL\}\}/g, base)
+    .replace(/\{\{BASE_URL_DISPLAY\}\}/g, baseDisplay)
+}
+
+/** @deprecated Legacy URL sign-in; new accounts use email OTP via sendEmailLoginCode */
 export async function sendMagicLink(email: string, token: string): Promise<void> {
   const magicUrl = `${BASE_URL}/verify?token=${token}`
 
@@ -58,6 +90,25 @@ export async function sendMagicLink(email: string, token: string): Promise<void>
 
   if (error) {
     throw new Error(`Failed to send magic link: ${error.message}`)
+  }
+}
+
+export async function sendEmailLoginCode(email: string, code: string): Promise<void> {
+  if (isDev()) {
+    console.log('\n📧 [DEV] Sign-in code for', email)
+    console.log('👉', code, '\n')
+    return
+  }
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: email,
+    subject: 'Your TagTale sign-in code',
+    html: renderSignInCodeEmailHtml(code),
+  })
+
+  if (error) {
+    throw new Error(`Failed to send sign-in code: ${error.message}`)
   }
 }
 

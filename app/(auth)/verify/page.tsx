@@ -20,7 +20,7 @@ export default function VerifyPage({
             <CircleX size={44} className="mx-auto mb-4 text-rose-300" />
             <h2 className="text-xl font-bold text-ink mb-2">Link expired or invalid</h2>
             <p className="text-ink-2 text-sm mb-6">
-              Magic links expire after 15 minutes. Request a new one.
+              Sign-in links expire after 15 minutes. Request a new code on the login page.
             </p>
             <a
               href="/login"

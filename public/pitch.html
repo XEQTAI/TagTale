@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TagTale — Every Object Has a Story</title>
+  <title>TagTale — Pitch</title>
   <style>
-    @page {
-      size: A4;
-      margin: 0;
-    }
+    @page { size: A4; margin: 0; }
 
     * {
       margin: 0;
@@ -27,7 +24,6 @@
       margin: 0 auto;
     }
 
-    /* ── Layout ── */
     .page {
       width: 210mm;
       min-height: 297mm;
@@ -37,318 +33,356 @@
       overflow: hidden;
     }
 
-    /* ── Hero ── */
+    /* ── Hero + photo ── */
     .hero {
       background: #0a0a0a;
-      color: #f7f7f7;
-      padding: 52px 56px 44px;
+      color: #f6f8fb;
+      padding: 40px 44px 36px;
       position: relative;
       overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 28px;
+      align-items: center;
     }
 
     .hero::before {
       content: '';
       position: absolute;
-      top: -80px;
-      right: -80px;
-      width: 320px;
-      height: 320px;
+      top: -60px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
       border-radius: 50%;
-      background: #1e1e1e;
+      background: rgba(106, 143, 255, 0.12);
     }
 
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -60px;
-      left: 30%;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: #161616;
-    }
+    .hero-copy { position: relative; z-index: 1; }
 
     .logo-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 40px;
-      position: relative;
-      z-index: 1;
+      gap: 10px;
+      margin-bottom: 22px;
     }
 
     .logo-mark {
-      width: 40px;
-      height: 40px;
-      background: #f7f7f7;
+      width: 36px;
+      height: 36px;
+      background: #f6f8fb;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      font-weight: 900;
+      font-size: 18px;
+      font-weight: 800;
       color: #0a0a0a;
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
       flex-shrink: 0;
     }
 
     .logo-name {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: #f7f7f7;
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: -0.4px;
+      color: #f6f8fb;
     }
 
     .hero-eyebrow {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
-      letter-spacing: 3px;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
-      color: #666;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
+      color: #7f8895;
+      margin-bottom: 12px;
     }
 
     .hero-headline {
-      font-size: 48px;
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -2px;
-      color: #f7f7f7;
-      max-width: 420px;
-      position: relative;
-      z-index: 1;
-      margin-bottom: 20px;
-    }
-
-    .hero-headline em {
-      font-style: normal;
-      color: #888;
+      font-size: 28px;
+      font-weight: 650;
+      line-height: 1.12;
+      letter-spacing: -0.6px;
+      color: #f6f8fb;
+      margin-bottom: 12px;
     }
 
     .hero-sub {
-      font-size: 15px;
-      line-height: 1.65;
-      color: #999;
-      max-width: 380px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #b8c0cc;
+      max-width: 340px;
+    }
+
+    .hero-photo {
       position: relative;
       z-index: 1;
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Two moments (reuse landing) ── */
+    .moments {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .moment {
+      border-right: 1px solid #e8e8e8;
+      padding: 0;
+    }
+
+    .moment:last-child { border-right: none; }
+
+    .moment img {
+      width: 100%;
+      height: 112px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .moment-cap {
+      padding: 10px 14px 14px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #444;
+      background: #fafafa;
+    }
+
+    .moment-cap strong {
+      display: block;
+      font-size: 12px;
+      color: #0a0a0a;
+      margin-bottom: 4px;
+    }
+
+    /* ── Carousel strip (reuse generated assets) ── */
+    .strip-label {
+      padding: 10px 44px 6px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #bbb;
+      background: #fff;
+    }
+
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .strip-cell {
+      border-right: 1px solid #e8e8e8;
+      height: 72px;
+      overflow: hidden;
+    }
+
+    .strip-cell:last-child { border-right: none; }
+
+    .strip-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     /* ── Steps ── */
     .steps {
       display: flex;
       padding: 0;
-      border-bottom: 1px solid #e4e4e4;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     .step {
       flex: 1;
-      padding: 28px 24px;
-      border-right: 1px solid #e4e4e4;
-      position: relative;
+      padding: 18px 16px;
+      border-right: 1px solid #e8e8e8;
     }
 
     .step:last-child { border-right: none; }
 
     .step-num {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       color: #bbb;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       text-transform: uppercase;
     }
 
-    .step-icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
     .step-title {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 650;
       color: #0a0a0a;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .step-desc {
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 11px;
+      line-height: 1.5;
       color: #666;
     }
 
     /* ── Value props ── */
     .props {
-      padding: 36px 56px;
+      padding: 22px 44px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      border-bottom: 1px solid #e4e4e4;
+      gap: 16px 20px;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     .prop {
       display: flex;
-      gap: 14px;
+      gap: 10px;
       align-items: flex-start;
     }
 
     .prop-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #0a0a0a;
-      margin-top: 6px;
+      margin-top: 5px;
       flex-shrink: 0;
     }
 
     .prop-title {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 650;
       color: #0a0a0a;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .prop-desc {
-      font-size: 12px;
-      line-height: 1.55;
+      font-size: 10.5px;
+      line-height: 1.5;
       color: #666;
     }
 
     /* ── Quote ── */
     .quote-section {
-      background: #f7f7f7;
-      padding: 36px 56px;
-      border-bottom: 1px solid #e4e4e4;
+      background: #f4f5f7;
+      padding: 22px 44px;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     .quote-mark {
-      font-size: 64px;
-      line-height: 0.6;
+      font-size: 40px;
+      line-height: 0.5;
       color: #ddd;
       font-family: Georgia, serif;
       display: block;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
 
     .quote-text {
-      font-size: 19px;
-      font-weight: 600;
-      line-height: 1.5;
-      letter-spacing: -0.4px;
+      font-size: 15px;
+      font-weight: 580;
+      line-height: 1.45;
+      letter-spacing: -0.2px;
       color: #0a0a0a;
-      max-width: 480px;
-      margin-bottom: 14px;
+      max-width: 460px;
+      margin-bottom: 8px;
     }
 
     .quote-attr {
-      font-size: 12px;
-      color: #999;
+      font-size: 11px;
+      color: #888;
     }
 
     /* ── Use cases ── */
     .usecases {
-      padding: 36px 56px;
-      border-bottom: 1px solid #e4e4e4;
+      padding: 20px 44px 18px;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     .section-label {
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: 3px;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
       color: #bbb;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
     .tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border: 1.5px solid #e4e4e4;
+      padding: 5px 11px;
+      border: 1px solid #e4e4e4;
       border-radius: 100px;
-      font-size: 12px;
+      font-size: 10.5px;
       font-weight: 500;
       color: #333;
     }
 
-    .tag-icon { font-size: 14px; }
-
-    /* ── CTA footer ── */
+    /* ── CTA ── */
     .cta {
       background: #0a0a0a;
-      color: #f7f7f7;
-      padding: 32px 56px;
+      color: #f6f8fb;
+      padding: 22px 44px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-top: auto;
     }
 
-    .cta-left {}
-
     .cta-eyebrow {
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: #555;
-      margin-bottom: 8px;
+      color: #666;
+      margin-bottom: 6px;
     }
 
     .cta-headline {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #f7f7f7;
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: -0.3px;
+      color: #f6f8fb;
       margin-bottom: 4px;
     }
 
     .cta-url {
-      font-size: 13px;
+      font-size: 11px;
       color: #888;
     }
 
     .cta-qr {
-      width: 80px;
-      height: 80px;
-      background: #1e1e1e;
-      border-radius: 12px;
+      width: 72px;
+      height: 72px;
+      background: #1a1d24;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      gap: 4px;
+      flex-shrink: 0;
     }
 
-    /* Hand-drawn QR pattern */
-    .qr-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 6px);
-      grid-template-rows: repeat(7, 6px);
-      gap: 1px;
-    }
-
-    .qr-cell {
-      border-radius: 1px;
-      background: #f7f7f7;
-    }
-
-    .qr-cell.off { background: transparent; }
-
-    /* ── Divider stripe ── */
     .stripe {
-      height: 4px;
-      background: linear-gradient(90deg, #0a0a0a 0%, #555 50%, #0a0a0a 100%);
+      height: 3px;
+      background: linear-gradient(90deg, #0a0a0a 0%, #4b5563 50%, #0a0a0a 100%);
     }
 
     @media print {
@@ -360,139 +394,153 @@
 <body>
 <div class="page">
 
-  <!-- Hero -->
   <div class="hero">
-    <div class="logo-row">
-      <div class="logo-mark">T</div>
-      <span class="logo-name">TagTale</span>
+    <div class="hero-copy">
+      <div class="logo-row">
+        <div class="logo-mark">T</div>
+        <span class="logo-name">TagTale</span>
+      </div>
+      <div class="hero-eyebrow">Stories tied to real objects</div>
+      <h1 class="hero-headline">A story lives on the things around you.</h1>
+      <p class="hero-sub">TagTale links a feed to QR codes and tags on real things — on a trip, at a café, or on something passed between friends. Scan once to connect.</p>
     </div>
-    <div class="hero-eyebrow">Introducing</div>
-    <h1 class="hero-headline">Every object<br/><em>has a story.</em><br/>Now it can tell it.</h1>
-    <p class="hero-sub">TagTale turns any physical object into a living social feed. Scan a QR tag, read the history, add your chapter.</p>
+    <div class="hero-photo">
+      <img src="/landing/hero.webp" alt="" width="800" height="600" />
+    </div>
   </div>
 
-  <!-- 3 Steps -->
+  <div class="moments">
+    <div class="moment">
+      <img src="/landing/scan.webp" alt="" width="800" height="600" />
+      <div class="moment-cap">
+        <strong>Travel &amp; discovery</strong>
+        A tag on a rental, trail marker, or pop-up — scan and see who else passed through.
+      </div>
+    </div>
+    <div class="moment">
+      <img src="/landing/together.webp" alt="" width="800" height="600" />
+      <div class="moment-cap">
+        <strong>Friendship</strong>
+        Pass the phone, laugh at an old post — feeds stay about the thing, not the algorithm.
+      </div>
+    </div>
+  </div>
+
+  <div class="strip-label">Tags on everyday things</div>
+  <div class="strip">
+    <div class="strip-cell"><img src="/landing/carousel-pet-tag.webp" alt="" /></div>
+    <div class="strip-cell"><img src="/landing/carousel-mug.webp" alt="" /></div>
+    <div class="strip-cell"><img src="/landing/carousel-bench.webp" alt="" /></div>
+    <div class="strip-cell"><img src="/landing/carousel-monument.webp" alt="" /></div>
+  </div>
+
   <div class="steps">
     <div class="step">
-      <div class="step-num">Step 01</div>
-      <span class="step-icon">📷</span>
-      <div class="step-title">Scan</div>
-      <div class="step-desc">Point your phone camera at any TagTale QR code. No app download required.</div>
+      <div class="step-num">01</div>
+      <div class="step-title">Spot a tag</div>
+      <div class="step-desc">On a table tent, a bike, a suitcase — wherever you see a TagTale QR.</div>
     </div>
     <div class="step">
-      <div class="step-num">Step 02</div>
-      <span class="step-icon">📖</span>
-      <div class="step-title">Discover</div>
-      <div class="step-desc">Read posts, photos and memories left by everyone who ever touched this object.</div>
+      <div class="step-num">02</div>
+      <div class="step-title">Confirm your email</div>
+      <div class="step-desc">We send one link. Tap it — that’s your sign-in. No password vault required.</div>
     </div>
     <div class="step">
-      <div class="step-num">Step 03</div>
-      <span class="step-icon">✍️</span>
-      <div class="step-title">Contribute</div>
-      <div class="step-desc">Add your own story — text, photo or video. Your post travels with the object forever.</div>
+      <div class="step-num">03</div>
+      <div class="step-title">Browse &amp; share</div>
+      <div class="step-desc">Read the feed, add a photo or note, follow what you care about.</div>
     </div>
   </div>
 
-  <!-- Value props -->
   <div class="props">
     <div class="prop">
       <div class="prop-dot"></div>
       <div>
         <div class="prop-title">Lives on the object</div>
-        <div class="prop-desc">The feed is tied to the physical thing, not a person or account. Stories accumulate over years.</div>
+        <div class="prop-desc">The feed is tied to the physical thing. Stories accumulate as it moves.</div>
       </div>
     </div>
     <div class="prop">
       <div class="prop-dot"></div>
       <div>
-        <div class="prop-title">No app needed</div>
-        <div class="prop-desc">Works in any mobile browser. Scan, read and post in under 30 seconds.</div>
+        <div class="prop-title">Plain in the browser</div>
+        <div class="prop-desc">Scan with your phone camera, read and post without installing an app.</div>
       </div>
     </div>
     <div class="prop">
       <div class="prop-dot"></div>
       <div>
-        <div class="prop-title">Follow objects, not people</div>
-        <div class="prop-desc">Get notified when someone posts on an object you care about — a bike, a bench, a book.</div>
+        <div class="prop-title">Follow objects, not feeds</div>
+        <div class="prop-desc">Quiet updates on the things you care about — not a noisy home timeline.</div>
       </div>
     </div>
     <div class="prop">
       <div class="prop-dot"></div>
       <div>
-        <div class="prop-title">Community moderated</div>
-        <div class="prop-desc">Built-in reporting and AI moderation keep feeds respectful and spam-free.</div>
+        <div class="prop-title">Built for civility</div>
+        <div class="prop-desc">Reporting and moderation help keep each object’s feed respectful.</div>
       </div>
     </div>
   </div>
 
-  <!-- Pull quote -->
   <div class="quote-section">
     <span class="quote-mark">"</span>
-    <p class="quote-text">Imagine your grandmother's rocking chair telling every family member's story. Or a city bench that holds 40 years of lunches, proposals and goodbyes.</p>
-    <div class="quote-attr">The TagTale vision — objects as living archives</div>
+    <p class="quote-text">A family chair that holds every visit. A bench that remembers proposals and goodbyes. TagTale is for moments that belong to a thing — and everyone who touches it.</p>
+    <div class="quote-attr">Calm social layers on real-world objects</div>
   </div>
 
-  <!-- Use cases -->
   <div class="usecases">
-    <div class="section-label">Perfect for</div>
+    <div class="section-label">Where it fits</div>
     <div class="tags">
-      <span class="tag"><span class="tag-icon">🏛️</span> Museums &amp; galleries</span>
-      <span class="tag"><span class="tag-icon">🏨</span> Hotels &amp; Airbnbs</span>
-      <span class="tag"><span class="tag-icon">🚲</span> Shared bikes &amp; vehicles</span>
-      <span class="tag"><span class="tag-icon">📚</span> Little free libraries</span>
-      <span class="tag"><span class="tag-icon">🎨</span> Street art &amp; murals</span>
-      <span class="tag"><span class="tag-icon">🏡</span> Family heirlooms</span>
-      <span class="tag"><span class="tag-icon">🎸</span> Instruments &amp; gear</span>
-      <span class="tag"><span class="tag-icon">🏟️</span> Venues &amp; landmarks</span>
-      <span class="tag"><span class="tag-icon">🛍️</span> Brands &amp; products</span>
-      <span class="tag"><span class="tag-icon">🌳</span> Parks &amp; public spaces</span>
+      <span class="tag">Museums &amp; galleries</span>
+      <span class="tag">Cafés &amp; hotels</span>
+      <span class="tag">Shared bikes &amp; gear</span>
+      <span class="tag">Street art &amp; trails</span>
+      <span class="tag">Family keepsakes</span>
+      <span class="tag">Brands &amp; products</span>
+      <span class="tag">Parks &amp; public spaces</span>
+      <span class="tag">Gifts that travel</span>
     </div>
   </div>
 
-  <!-- CTA -->
   <div class="cta">
-    <div class="cta-left">
-      <div class="cta-eyebrow">Get started free</div>
-      <div class="cta-headline">Scan. Post. Follow the story.</div>
-      <div class="cta-url">tagtale.netlify.app</div>
+    <div>
+      <div class="cta-eyebrow">Get started</div>
+      <div class="cta-headline">Scan. Post. Follow the thread.</div>
+      <div class="cta-url">Use your live site URL in print — e.g. Netlify or custom domain</div>
     </div>
-    <div class="cta-qr">
-      <!-- Minimal QR-like pattern for visual decoration -->
-      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Top-left finder -->
-        <rect x="2" y="2" width="18" height="18" rx="3" fill="#f7f7f7"/>
+    <div class="cta-qr" aria-hidden="true">
+      <svg width="52" height="52" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="18" height="18" rx="3" fill="#f6f8fb"/>
         <rect x="5" y="5" width="12" height="12" rx="2" fill="#0a0a0a"/>
-        <rect x="8" y="8" width="6" height="6" rx="1" fill="#f7f7f7"/>
-        <!-- Top-right finder -->
-        <rect x="36" y="2" width="18" height="18" rx="3" fill="#f7f7f7"/>
+        <rect x="8" y="8" width="6" height="6" rx="1" fill="#f6f8fb"/>
+        <rect x="36" y="2" width="18" height="18" rx="3" fill="#f6f8fb"/>
         <rect x="39" y="5" width="12" height="12" rx="2" fill="#0a0a0a"/>
-        <rect x="42" y="8" width="6" height="6" rx="1" fill="#f7f7f7"/>
-        <!-- Bottom-left finder -->
-        <rect x="2" y="36" width="18" height="18" rx="3" fill="#f7f7f7"/>
+        <rect x="42" y="8" width="6" height="6" rx="1" fill="#f6f8fb"/>
+        <rect x="2" y="36" width="18" height="18" rx="3" fill="#f6f8fb"/>
         <rect x="5" y="39" width="12" height="12" rx="2" fill="#0a0a0a"/>
-        <rect x="8" y="42" width="6" height="6" rx="1" fill="#f7f7f7"/>
-        <!-- Data dots -->
-        <rect x="24" y="2" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="24" y="8" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="30" y="8" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="24" y="14" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="2" y="24" width="4" height="8" rx="1" fill="#f7f7f7"/>
-        <rect x="8" y="24" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="14" y="24" width="4" height="8" rx="1" fill="#f7f7f7"/>
-        <rect x="24" y="24" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="30" y="24" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="36" y="24" width="4" height="8" rx="1" fill="#f7f7f7"/>
-        <rect x="42" y="24" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="48" y="24" width="6" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="24" y="30" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="24" y="36" width="4" height="8" rx="1" fill="#f7f7f7"/>
-        <rect x="30" y="36" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="30" y="42" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="36" y="42" width="8" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="30" y="48" width="4" height="6" rx="1" fill="#f7f7f7"/>
-        <rect x="42" y="36" width="4" height="4" rx="1" fill="#f7f7f7"/>
-        <rect x="48" y="36" width="6" height="8" rx="1" fill="#f7f7f7"/>
-        <rect x="42" y="46" width="4" height="8" rx="1" fill="#f7f7f7"/>
+        <rect x="8" y="42" width="6" height="6" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="2" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="8" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="30" y="8" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="14" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="2" y="24" width="4" height="8" rx="1" fill="#f6f8fb"/>
+        <rect x="8" y="24" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="14" y="24" width="4" height="8" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="24" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="30" y="24" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="36" y="24" width="4" height="8" rx="1" fill="#f6f8fb"/>
+        <rect x="42" y="24" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="48" y="24" width="6" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="30" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="24" y="36" width="4" height="8" rx="1" fill="#f6f8fb"/>
+        <rect x="30" y="36" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="30" y="42" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="36" y="42" width="8" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="30" y="48" width="4" height="6" rx="1" fill="#f6f8fb"/>
+        <rect x="42" y="36" width="4" height="4" rx="1" fill="#f6f8fb"/>
+        <rect x="48" y="36" width="6" height="8" rx="1" fill="#f6f8fb"/>
+        <rect x="42" y="46" width="4" height="8" rx="1" fill="#f6f8fb"/>
       </svg>
     </div>
   </div>

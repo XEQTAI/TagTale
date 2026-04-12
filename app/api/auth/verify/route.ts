@@ -2,87 +2,54 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSessionToken, setSessionCookie } from '@/lib/auth'
 import { sendWelcomeEmail } from '@/lib/email'
-import { generateUsername, generateAvatarUrl } from '@/lib/utils'
-import { generateAiUsername } from '@/lib/ai'
-import { trackEvent, log } from '@/lib/analytics'
+import { completeEmailLogin } from '@/lib/email-login'
+import { log } from '@/lib/analytics'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
   const rl = checkRateLimit(`auth:verify:${getClientIp(req)}`, 40, 60_000)
   if (!rl.ok) {
-    return NextResponse.redirect(new URL('/auth/login?error=ratelimit', req.url))
+    return NextResponse.redirect(new URL('/login?error=ratelimit', req.url))
   }
 
   const token = req.nextUrl.searchParams.get('token')
 
   if (!token) {
-    return NextResponse.redirect(new URL('/auth/login?error=invalid', req.url))
+    return NextResponse.redirect(new URL('/login?error=invalid', req.url))
   }
 
   try {
     const magicLink = await prisma.magicLink.findUnique({ where: { token } })
 
     if (!magicLink) {
-      return NextResponse.redirect(new URL('/auth/login?error=invalid', req.url))
+      return NextResponse.redirect(new URL('/login?error=invalid', req.url))
     }
     if (magicLink.usedAt) {
-      return NextResponse.redirect(new URL('/auth/login?error=used', req.url))
+      return NextResponse.redirect(new URL('/login?error=used', req.url))
     }
     if (magicLink.expiresAt < new Date()) {
-      return NextResponse.redirect(new URL('/auth/login?error=expired', req.url))
+      return NextResponse.redirect(new URL('/login?error=expired', req.url))
     }
 
-    // Mark as used
+    const email = magicLink.email.trim().toLowerCase()
+
     await prisma.magicLink.update({ where: { id: magicLink.id }, data: { usedAt: new Date() } })
 
-    // Find or create user
-    let user = await prisma.user.findUnique({ where: { email: magicLink.email } })
-    let isNewUser = false
+    const { user, isNewUser } = await completeEmailLogin(email)
 
-    if (!user) {
-      isNewUser = true
-      let username = await generateAiUsername()
-      if (!username) username = generateUsername()
-
-      // Ensure username uniqueness
-      let attempts = 0
-      let candidateUsername = username
-      while (await prisma.user.findUnique({ where: { username: candidateUsername } }) && attempts < 20) {
-        candidateUsername = generateUsername()
-        attempts++
-      }
-
-      const avatarUrl = generateAvatarUrl(candidateUsername)
-      const isAdmin = magicLink.email === process.env.ADMIN_EMAIL
-
-      user = await prisma.user.create({
-        data: {
-          email: magicLink.email,
-          username: candidateUsername,
-          avatarUrl,
-          isAdmin,
-        },
-      })
-
-      await trackEvent('user_signup', { userId: user.id })
-    } else {
-      await trackEvent('user_login', { userId: user.id })
-    }
-
-    // Create session
     const sessionToken = await createSessionToken(user.id)
     await setSessionCookie(sessionToken)
 
-    await log('info', 'User authenticated', { userId: user.id, isNewUser })
+    await log('info', 'User authenticated (legacy link)', { userId: user.id, isNewUser })
 
-    // Send welcome email to new users
-    if (isNewUser) {
+    if (isNewUser && !user.isAdmin) {
       sendWelcomeEmail(user.email, user.username).catch(console.error)
     }
 
-    return NextResponse.redirect(new URL('/feed', req.url))
+    const next = user.isAdmin ? '/admin' : '/feed'
+    return NextResponse.redirect(new URL(next, req.url))
   } catch (err) {
     await log('error', 'Auth verify failed', { error: String(err) })
-    return NextResponse.redirect(new URL('/auth/login?error=server', req.url))
+    return NextResponse.redirect(new URL('/login?error=server', req.url))
   }
 }

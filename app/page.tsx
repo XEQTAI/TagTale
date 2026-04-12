@@ -61,7 +61,7 @@ export default async function LandingPage() {
                   A story lives on the things around you.
                 </h1>
                 <p className="text-[1.0625rem] sm:text-lg text-ink-2 leading-relaxed mb-8 sm:mb-10">
-                  TagTale links a calm feed to QR codes and tags on real things — on a trip, at a café, or on something
+                  TagTale links a feed to QR codes and tags on real things — on a trip, at a café, or on something
                   passed between friends. Scan once to connect.
                 </p>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3">
@@ -79,7 +79,7 @@ export default async function LandingPage() {
                     How it works
                   </a>
                 </div>
-                <p className="mt-4 sm:mt-5 text-sm text-ink-3">We&apos;ll email you a link — no password to remember.</p>
+                <p className="mt-4 sm:mt-5 text-sm text-ink-3">We&apos;ll email you a one-time code — no password to remember.</p>
               </div>
 
               <div className="order-1 lg:order-2 w-full max-w-md mx-auto lg:max-w-none">
@@ -239,7 +239,7 @@ export default async function LandingPage() {
               <h2 id="how-heading" className="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
                 How it works
               </h2>
-              <p className="mt-3 text-base sm:text-lg text-ink-2 leading-relaxed">Three calm steps.</p>
+              <p className="mt-3 text-base sm:text-lg text-ink-2 leading-relaxed">Three steps.</p>
             </div>
 
             <ol className="space-y-10 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-8 lg:gap-10">

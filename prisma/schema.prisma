@@ -32,13 +32,17 @@ model User {
 model MagicLink {
   id        String    @id @default(cuid())
   email     String
+  /// Legacy URL sign-in (still used by GET /api/auth/verify?token=)
   token     String    @unique
+  /// 6-digit email OTP (new primary sign-in path)
+  code      String?
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
 
   @@index([email])
   @@index([token])
+  @@index([email, code])
 }
 
 // ─── Objects ─────────────────────────────────────────────────────────────────

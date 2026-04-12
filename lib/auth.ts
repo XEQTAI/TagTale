@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
 import type { User } from '@prisma/client'
 
-function getJwtSecretBytes(): Uint8Array {
+function loadJwtSecretBytes(): Uint8Array {
   const secret = process.env.JWT_SECRET
   if (process.env.NODE_ENV === 'production') {
     if (!secret || secret.length < 32) {
@@ -17,7 +17,12 @@ function getJwtSecretBytes(): Uint8Array {
   return new TextEncoder().encode(secret || 'dev-only-fallback-not-for-production')
 }
 
-const JWT_SECRET = getJwtSecretBytes()
+/** Lazy so `next build` can load this module without JWT_SECRET (Netlify injects env at runtime). */
+let jwtSecretCache: Uint8Array | undefined
+function getJwtSecret(): Uint8Array {
+  if (!jwtSecretCache) jwtSecretCache = loadJwtSecretBytes()
+  return jwtSecretCache
+}
 
 const SESSION_COOKIE = 'session'
 const SESSION_DURATION_DAYS = 30
@@ -29,7 +34,7 @@ export async function createSessionToken(userId: string): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime(`${SESSION_DURATION_DAYS}d`)
     .setIssuedAt()
-    .sign(JWT_SECRET)
+    .sign(getJwtSecret())
 }
 
 export async function getSession(req?: NextRequest): Promise<{ userId: string; user: SessionUser } | null> {
@@ -44,7 +49,7 @@ export async function getSession(req?: NextRequest): Promise<{ userId: string; u
   if (!token) return null
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, getJwtSecret())
     const userId = payload.userId as string
     if (!userId) return null
 

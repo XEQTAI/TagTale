@@ -6,12 +6,13 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Create admin user
+  // Create admin user (email matches ADMIN_EMAIL in .env when set)
+  const adminEmail = process.env.ADMIN_EMAIL || 'erik@xeqt.co.za'
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@tagtale.app' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@tagtale.app',
+      email: adminEmail,
       username: 'admin',
       avatarUrl: generateAvatarUrl('admin'),
       isAdmin: true,
@@ -81,7 +82,7 @@ async function main() {
   console.log('✅ Ad created')
 
   console.log('\n🎉 Seed complete!')
-  console.log('\nAdmin login: admin@tagtale.app')
+  console.log(`\nAdmin login: ${adminEmail}`)
 }
 
 main()
